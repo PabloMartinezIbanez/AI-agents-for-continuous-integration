@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 """
 Script simple que suma dos números
 """
