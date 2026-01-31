@@ -10,15 +10,6 @@ pipeline {
     }
     
     stages {
-        stage('Debug Environment') {
-            steps {
-                bat '''
-                    echo PATH=%PATH%
-                    where python
-                '''
-            }
-        }
-
         stage('Checkout') {
             steps {
                 echo 'Obteniendo código del repositorio...'
