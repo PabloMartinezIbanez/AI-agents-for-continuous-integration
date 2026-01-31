@@ -41,7 +41,7 @@ pipeline {
             steps {
                 echo 'Construyendo ejecutable con PyInstaller...'
                 bat '''
-                    pyinstaller --onefile --name suma suma.py
+                    "%PYTHON%" -m PyInstaller --onefile --name suma suma.py
                 '''
             }
         }
