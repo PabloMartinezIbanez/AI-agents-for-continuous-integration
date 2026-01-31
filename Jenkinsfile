@@ -6,6 +6,7 @@ pipeline {
     
     environment {
         PYTHON_VERSION = '3.11'
+        PYTHON = 'C:\\Users\\pabma\\AppData\\Local\\Programs\\Python\\Python314\\python.exe'
     }
     
     stages {
@@ -29,8 +30,8 @@ pipeline {
             steps {
                 echo 'Verificando instalación de Python...'
                 bat '''
-                    python --version
-                    python -m pip --version
+                    "%PYTHON%" --version
+                    "%PYTHON%" -m pip --version
                 '''
             }
         }
@@ -39,8 +40,8 @@ pipeline {
             steps {
                 echo 'Instalando dependencias...'
                 bat '''
-                    python -m pip install --upgrade pip
-                    pip install -r requirements.txt
+                    "%PYTHON%" -m pip install --upgrade pip
+                    "%PYTHON%" -m pip install -r requirements.txt
                 '''
             }
         }
