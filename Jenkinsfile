@@ -78,7 +78,10 @@ pipeline {
         stage('Archive Artifacts') {
             steps {
                 echo 'Archivando ejecutable...'
-                archiveArtifacts artifacts: 'dist/', fingerprint: true
+                archiveArtifacts artifacts: 'dist/*.exe', fingerprint: true
+
+                echo 'Archivando logs...'
+                archiveArtifacts artifacts: 'dist/*.log', fingerprint: true
             }
         }
     }
