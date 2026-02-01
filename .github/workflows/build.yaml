@@ -39,7 +39,7 @@ jobs:
         pytest test.py
     - name: Build executable
       run: |
-        pyinstaller --onefile --name suma suma.py
+        python -m pyinstaller --onefile --name suma suma.py
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
