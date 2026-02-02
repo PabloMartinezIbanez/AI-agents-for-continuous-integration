@@ -39,6 +39,15 @@ pipeline {
             }
         }
 
+        stage('Get Code Changes') {
+            steps {
+                echo 'Obteniendo cambios del commit...'
+                bat '''
+                    git show --pretty=format:"" > diff.log
+                '''
+            }
+}
+
         stage('Lint') {
             steps {
                 echo 'Ejecutando lint con flake8...'
