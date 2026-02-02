@@ -64,7 +64,7 @@ pipeline {
             steps {
                 echo 'Analizando resultados con IA...'
                 bat '''
-                    "%PYTHON%" ia_analyzer.py lint.log tests.log > ai_report.md || exit 0
+                    "%PYTHON%" ia_analyzer.py
                 '''
             }
         }

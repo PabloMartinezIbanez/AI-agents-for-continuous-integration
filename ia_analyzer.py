@@ -27,7 +27,7 @@ Genera un informe con formato markdown con:
         model="gemini-3-pro-preview",
         contents=prompt
     )
-    print(response.text)
+
     return response.text
 
 
