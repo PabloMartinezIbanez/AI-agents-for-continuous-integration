@@ -59,6 +59,15 @@ pipeline {
                 '''
             }
         }
+
+        stage('AI Analysis') {
+            steps {
+                echo 'Analizando resultados con IA...'
+                bat '''
+                    "%PYTHON%" ia_analyzer.py lint.log tests.log > ai_report.md || exit 0
+                '''
+            }
+        }
         
         stage('Build Executable') {
             steps {
@@ -83,6 +92,9 @@ pipeline {
 
                 echo 'Archivando logs...'
                 archiveArtifacts artifacts: '*.log', fingerprint: true
+
+                echo 'Archivando informe IA...'
+                archiveArtifacts artifacts: 'ai_report.md', fingerprint: true
             }
         }
     }
