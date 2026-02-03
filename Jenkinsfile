@@ -1,7 +1,7 @@
 pipeline {
     agent {
         // Necesitamos un agente con Windows para crear .exe
-        label 'windows'
+        label 'linux'
     }
     
     environment {
@@ -21,7 +21,7 @@ pipeline {
         stage('Setup Python') {
             steps {
                 echo 'Verificando instalación de Python...'
-                bat '''
+                sh '''
                     "%PYTHON%" --version
                     "%PYTHON%" -m pip --version
                 '''
@@ -31,7 +31,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo 'Instalando dependencias...'
-                bat '''
+                sh '''
                     "%PYTHON%" -m pip install --upgrade pip
                     "%PYTHON%" -m pip install flake8 pytest
                     "%PYTHON%" -m pip install -r requirements.txt
@@ -42,7 +42,7 @@ pipeline {
         stage('Get Code Changes') {
             steps {
                 echo 'Obteniendo cambios del commit...'
-                bat '''
+                sh '''
                     git show --pretty=format:"" > diff.log
                 '''
             }
@@ -53,7 +53,7 @@ pipeline {
                 echo 'Ejecutando lint con flake8...'
                 // stop the build if there are Python syntax errors or undefined names
                 // exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-                bat '''
+                sh '''
                     "%PYTHON%" -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
                     "%PYTHON%" -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics > lint.log || exit 0
                 '''
@@ -63,7 +63,7 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 echo 'Ejecutando tests con pytest...'
-                bat '''
+                sh '''
                     "%PYTHON%" -m pytest test.py > tests.log || exit 0
                 '''
             }
@@ -72,7 +72,7 @@ pipeline {
         stage('AI Analysis') {
             steps {
                 echo 'Analizando resultados con IA...'
-                bat '''
+                sh '''
                     "%PYTHON%" ia_analyzer.py
                 '''
             }
@@ -81,7 +81,7 @@ pipeline {
         stage('Build Executable') {
             steps {
                 echo 'Construyendo ejecutable con PyInstaller...'
-                bat '''
+                sh '''
                     "%PYTHON%" -m PyInstaller --onefile --name suma suma.py
                 '''
             }
@@ -90,7 +90,7 @@ pipeline {
         stage('List Artifacts') {
             steps {
                 echo 'Archivos generados:'
-                bat 'dir dist'
+                sh 'ls dist'
             }
         }
         
