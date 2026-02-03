@@ -1,7 +1,8 @@
 pipeline {
     agent {
-        // Necesitamos un agente con Windows para crear .exe
-        label 'linux'
+        docker {
+            image 'python:3.11-slim'
+        }
     }
     
     environment {
