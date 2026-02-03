@@ -22,8 +22,8 @@ pipeline {
             steps {
                 echo 'Verificando instalación de Python...'
                 sh '''
-                    "%PYTHON%" --version
-                    "%PYTHON%" -m pip --version
+                    python3 --version
+                    python3 -m pip --version
                 '''
             }
         }
@@ -32,9 +32,9 @@ pipeline {
             steps {
                 echo 'Instalando dependencias...'
                 sh '''
-                    "%PYTHON%" -m pip install --upgrade pip
-                    "%PYTHON%" -m pip install flake8 pytest
-                    "%PYTHON%" -m pip install -r requirements.txt
+                    python3 -m pip install --upgrade pip
+                    python3 -m pip install flake8 pytest
+                    python3 -m pip install -r requirements.txt
                 '''
             }
         }
@@ -54,8 +54,8 @@ pipeline {
                 // stop the build if there are Python syntax errors or undefined names
                 // exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
                 sh '''
-                    "%PYTHON%" -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-                    "%PYTHON%" -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics > lint.log || exit 0
+                    python3 -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+                    python3 -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics > lint.log || exit 0
                 '''
             }
         }
@@ -64,7 +64,7 @@ pipeline {
             steps {
                 echo 'Ejecutando tests con pytest...'
                 sh '''
-                    "%PYTHON%" -m pytest test.py > tests.log || exit 0
+                    python3 -m pytest test.py > tests.log || exit 0
                 '''
             }
         }
@@ -73,7 +73,7 @@ pipeline {
             steps {
                 echo 'Analizando resultados con IA...'
                 sh '''
-                    "%PYTHON%" ia_analyzer.py
+                    python3 ia_analyzer.py
                 '''
             }
         }
@@ -82,7 +82,7 @@ pipeline {
             steps {
                 echo 'Construyendo ejecutable con PyInstaller...'
                 sh '''
-                    "%PYTHON%" -m PyInstaller --onefile --name suma suma.py
+                    python3 -m PyInstaller --onefile --name suma suma.py
                 '''
             }
         }
