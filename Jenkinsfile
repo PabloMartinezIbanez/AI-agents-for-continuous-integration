@@ -1,8 +1,6 @@
 pipeline {
     agent {
-        docker {
-            image 'python:3.15.0a5-trixie'
-        }
+        any
     }
     
     environment {
@@ -21,6 +19,7 @@ pipeline {
             steps {
                 echo 'Verificando instalación de Python...'
                 sh '''
+                    sudo apt update && sudo apt install python3
                     python3 --version
                     python3 -m pip --version
                 '''
