@@ -1,13 +1,11 @@
 pipeline {
     agent {
         docker {
-            image 'python:3.11-slim'
+            image 'python:3.15.0a5-trixie'
         }
     }
     
     environment {
-        PYTHON_VERSION = '3.11'
-        PYTHON = 'C:\\Users\\pabma\\AppData\\Local\\Programs\\Python\\Python314\\python.exe'
         GEMINI_API_KEY = credentials('GEMINI_API_KEY')
     }
     
