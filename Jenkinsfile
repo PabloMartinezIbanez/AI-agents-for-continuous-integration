@@ -16,7 +16,7 @@ pipeline {
         stage('Setup Python') {
             steps {
                 echo 'Verificando instalación de Python...'
-                sh '''
+                bash '''
                     python3 --version
                     python3 -m pip --version
                 '''
@@ -26,7 +26,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo 'Instalando dependencias...'
-                sh '''
+                bash '''
                     python3 -m pip install --upgrade pip
                     python3 -m pip install flake8 pytest
                     python3 -m pip install -r requirements.txt
@@ -37,7 +37,7 @@ pipeline {
         stage('Get Code Changes') {
             steps {
                 echo 'Obteniendo cambios del commit...'
-                sh '''
+                bash '''
                     git show --pretty=format:"" > diff.log
                 '''
             }
@@ -48,7 +48,7 @@ pipeline {
                 echo 'Ejecutando lint con flake8...'
                 // stop the build if there are Python syntax errors or undefined names
                 // exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-                sh '''
+                bash '''
                     python3 -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
                     python3 -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics > lint.log || exit 0
                 '''
@@ -58,7 +58,7 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 echo 'Ejecutando tests con pytest...'
-                sh '''
+                bash '''
                     python3 -m pytest test.py > tests.log || exit 0
                 '''
             }
@@ -67,7 +67,7 @@ pipeline {
         stage('AI Analysis') {
             steps {
                 echo 'Analizando resultados con IA...'
-                sh '''
+                bash '''
                     python3 ia_analyzer.py
                 '''
             }
@@ -76,7 +76,7 @@ pipeline {
         stage('Build Executable') {
             steps {
                 echo 'Construyendo ejecutable con PyInstaller...'
-                sh '''
+                bash '''
                     python3 -m PyInstaller --onefile --name suma suma.py
                 '''
             }
@@ -85,7 +85,7 @@ pipeline {
         stage('List Artifacts') {
             steps {
                 echo 'Archivos generados:'
-                sh 'ls dist'
+                bash 'ls dist'
             }
         }
         
