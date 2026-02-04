@@ -86,7 +86,7 @@ pipeline {
         stage('List Artifacts') {
             steps {
                 echo 'Archivos generados:'
-                bat 'ls dist'
+                bat 'dir dist'
             }
         }
         
