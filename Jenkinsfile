@@ -17,7 +17,6 @@ pipeline {
             steps {
                 echo 'Verificando instalación de Python...'
                 sh '''
-                    sudo apt update && sudo apt install python3
                     python3 --version
                     python3 -m pip --version
                 '''
