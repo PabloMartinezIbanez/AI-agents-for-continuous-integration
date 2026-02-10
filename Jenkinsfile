@@ -79,9 +79,9 @@ pipeline {
                 echo 'Mandando los logs a n8n'
                 bat '''
                     curl -X POST http://localhost:5678/webhook-test/Jenkins-trigger \
-                        -F lint=@lint.log \
-                        -F tests=@tests.log \
-                        -F commit=%GIT_COMMIT% \
+                        -F lint=@lint.log ^
+                        -F tests=@tests.log ^
+                        -F commit=%GIT_COMMIT% ^
                         -F branch=%BRANCH_NAME%
                 '''
             }
