@@ -13,6 +13,15 @@ pipeline {
                 checkout scm
             }
         }
+
+        stage('testing curl instalation'){
+            steps {
+                echo 'Testing curl instalation...'
+                bat '''
+                    curl --version
+                '''
+            }
+        }
         
         stage('Setup Python') {
             steps {
