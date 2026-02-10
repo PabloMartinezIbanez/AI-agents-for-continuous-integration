@@ -78,7 +78,7 @@ pipeline {
             steps {
                 echo 'Mandando los logs a n8n'
                 bat '''
-                    curl -X POST http://localhost:5678/webhook/Jenkins-trigger ^
+                    curl -X POST http://localhost:5678/webhook-test/Jenkins-trigger ^
                         --data-urlencode lint="$(type lint.log)" ^
                         --data-urlencode tests="$(type tests.log)" ^
                         --data-urlencode diff="$(type diff.log)" ^
