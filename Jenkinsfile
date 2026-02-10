@@ -65,11 +65,15 @@ pipeline {
             }
         }
 
-        stage('AI Analysis') {
+        stage('AI Analysis with n8n') {
             steps {
-                echo 'Analizando resultados con IA...'
+                echo 'Mandando los logs a n8n'
                 bat '''
-                    "%PYTHON%" ia_analyzer.py
+                    curl -X POST http://n8n:5678/webhook/ci-results \
+                        -F lint=@lint.log \
+                        -F tests=@tests.log \
+                        -F commit=$GIT_COMMIT \
+                        -F branch=$BRANCH_NAME
                 '''
             }
         }
