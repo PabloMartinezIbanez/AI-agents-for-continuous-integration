@@ -1,4 +1,5 @@
 pipeline {
+    agent none
     
     environment {
         GEMINI_API_KEY = credentials('GEMINI_API_KEY')
