@@ -1,17 +1,24 @@
 pipeline {
-    agent {
-        docker { 
-            image 'python:3.11-slim'
-            // Opcional: evitar pull si ya está local
-            alwaysPull false 
-        }
-    }
     
     environment {
         GEMINI_API_KEY = credentials('GEMINI_API_KEY')
     }
     
     stages {
+        stage('Agent') {
+            agent {
+                docker { 
+                    image 'python:3.11-slim'
+                    // Opcional: evitar pull si ya está local
+                    alwaysPull false 
+                }
+            }
+            steps {
+                echo 'Agent set up successfully'
+                sh 'python --version'
+                sh 'python -m pip --version'
+            }
+        }
         stage('Checkout') {
             steps {
                 echo 'Obteniendo código del repositorio...'
