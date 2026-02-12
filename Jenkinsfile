@@ -80,7 +80,7 @@ pipeline {
             steps {
                 echo 'Mandando los logs a n8n'
                 bat '''
-                    curl -X POST http://localhost:5678/webhook-test/Jenkins-pipeline ^
+                    curl -X POST http://localhost:5000/webhook-test/Jenkins-pipeline ^
                         -F lint=@lint.log ^
                         -F tests=@tests.log ^
                         -F diff=@diff.log ^

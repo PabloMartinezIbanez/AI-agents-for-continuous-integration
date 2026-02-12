@@ -7,4 +7,4 @@ USER root
 COPY --from=python-builder /usr/local /usr/local
 
 USER node
-EXPOSE 5678
+EXPOSE 5000
