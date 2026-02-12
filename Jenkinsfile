@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        label 'windows'
+    }
     
     environment {
         PYTHON = 'C:\\Users\\pabma\\AppData\\Local\\Programs\\Python\\Python314\\python.exe'
