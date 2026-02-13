@@ -79,14 +79,17 @@ pipeline {
         stage('AI Analysis with n8n') {
             steps {
                 echo 'Mandando los logs a n8n'
-                bat '''
-                    curl -X POST http://localhost:5000/webhook-test/Jenkins-pipeline ^
-                        -F lint=@lint.log ^
-                        -F tests=@tests.log ^
-                        -F diff=@diff.log ^
-                        -F commit=%GIT_COMMIT% ^
-                        -F branch=%BRANCH_NAME%
-                '''
+                powershell """
+                    \$lint = Get-Content -Raw lint.log -Encoding UTF8
+                    \$tests = Get-Content -Raw tests.log -Encoding UTF8
+                    \$diff = Get-Content -Raw diff.log -Encoding UTF8
+                    curl.exe -X POST http://localhost:5000/webhook-test/Jenkins-pipeline `
+                        -F lint=\$lint `
+                        -F tests=\$tests `
+                        -F diff=\$diff `
+                        -F commit=\$env:GIT_COMMIT `
+                        -F branch=\$env:BRANCH_NAME
+                """
             }
         }
         

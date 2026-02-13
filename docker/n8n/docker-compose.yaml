@@ -3,15 +3,16 @@ services:
     image: n8nio/n8n:2.7.3
     container_name: n8n-main
     environment:
-      - N8N_PORT=5000
+      - N8N_PORT=5670
       - N8N_RUNNERS_ENABLED=true
       - N8N_RUNNERS_MODE=external
       - N8N_RUNNERS_BROKER_LISTEN_ADDRESS=0.0.0.0
       - N8N_RUNNERS_AUTH_TOKEN=1234
       - N8N_NATIVE_PYTHON_RUNNER=true
       - N8N_RUNNERS_LAUNCHER_JAVASCRIPT_ENABLED=false
+      - N8N_PYTHON_ALLOWED_MODULES=base64,json,re
     ports:
-      - "5000:5000"
+      - "5670:5670"
     volumes:
       - n8n_data:/home/node/.n8n
     # etc.
@@ -20,7 +21,7 @@ services:
     image: n8nio/runners:2.7.3
     container_name: n8n-runners
     environment:
-      - N8N_RUNNERS_TASK_BROKER_URI=http://n8n-main:5000
+      - N8N_RUNNERS_TASK_BROKER_URI=http://n8n-main:5679
       - N8N_RUNNERS_AUTH_TOKEN=1234
       - N8N_RUNNERS_MODE=external
       - N8N_RUNNERS_ENABLED_TASK_TYPES=javascript,python
