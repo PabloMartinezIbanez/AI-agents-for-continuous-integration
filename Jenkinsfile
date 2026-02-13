@@ -83,7 +83,7 @@ pipeline {
                     \$lint = Get-Content -Raw lint.log -Encoding UTF8
                     \$tests = Get-Content -Raw tests.log -Encoding UTF8
                     \$diff = Get-Content -Raw diff.log -Encoding UTF8
-                    curl.exe -X POST http://localhost:5670/webhook-test/Jenkins-pipeline `
+                    curl.exe --silent --show-error -X POST http://localhost:5670/webhook-test/Jenkins-pipeline `
                         -F lint=\$lint `
                         -F tests=\$tests `
                         -F diff=\$diff `
