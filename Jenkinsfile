@@ -8,6 +8,10 @@ pipeline {
     triggers {
         githubPush()
     }
+
+    tools {
+        nodejs 'Node-v25.6.1'
+    }
     
     stages {
         stage('Checkout') {
