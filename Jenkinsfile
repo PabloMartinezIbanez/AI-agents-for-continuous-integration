@@ -1,5 +1,9 @@
 pipeline {
     agent any
+
+    tools {
+        nodejs '25.6.1'
+    }
     
     environment {
         GEMINI_API_KEY = credentials('GEMINI_API_KEY')
@@ -9,9 +13,7 @@ pipeline {
         githubPush()
     }
 
-    tools {
-        nodejs '25.6.1'
-    }
+    
     
     stages {
         stage('Checkout') {
