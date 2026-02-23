@@ -10,7 +10,7 @@ pipeline {
     }
 
     tools {
-        nodejs 'Node-v25.6.1'
+        nodejs('Node-v25.6.1')
     }
     
     stages {
