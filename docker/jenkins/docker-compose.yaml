@@ -1,0 +1,27 @@
+services:
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile # si sigues usando tu Dockerfile anterior
+    # Alternativa: si no quieres construir imagen custom, comenta build y usa image directamente:
+    # image: jenkins/jenkins:2.541.1-jdk25
+    container_name: jenkins-ngrok
+    image: jenkins-ngrok:2.541.1-jdk25
+    restart: on-failure
+    ports:
+      - "8080:8080" # host:5678 → contenedor:8080 (Jenkins UI)
+      - "5678:5678"
+      - "50000:50000" # puerto para agents JNLP (opcional pero recomendado)
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    env_file:
+      - .env # ← carga NGROK_AUTHTOKEN y otras vars desde aquí
+    environment:
+      # Puedes sobreescribir o añadir valores por defecto aquí si quieres
+      JENKINS_OPTS: "--httpPort=8080"
+      NGROK_REGION: "eu" # opcional: descomenta y pon tu región preferida
+    entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
+
+volumes:
+  jenkins_home:
+    name: jenkins_home_data
