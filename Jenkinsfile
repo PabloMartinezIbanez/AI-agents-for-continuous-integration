@@ -25,8 +25,7 @@ pipeline {
             steps {
                 echo 'Verificando instalación de Node...'
                 sh '''
-                    node --version
-                    npm --version
+                    npm version
                 '''
             }
         }
