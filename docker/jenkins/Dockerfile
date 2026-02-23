@@ -13,7 +13,8 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
     unzip \
-    ca-certificates && \
+    ca-certificates \
+    libatomic1 &&\
     rm -rf /var/lib/apt/lists/*
 
 # Descargar e instalar ngrok (versión estable más reciente en 2026)
