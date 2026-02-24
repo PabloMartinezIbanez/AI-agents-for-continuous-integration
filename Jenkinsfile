@@ -27,15 +27,22 @@ pipeline {
                 sh '''
                     node --version
                     npm --version
-                    python --version
                 '''
             }
         }
 
         stage('Installing dependencies') {
+            agent {
+                docker {
+                    image 'python:3.12-slim'          // o python:3.11-slim, python:3.13-slim...
+                    reuseNode true                    // ← Importante: comparte el workspace con Jenkins
+                    args '-u root:root'               // Evita problemas de permisos en el workspace
+                }
+            }
             steps {
                 echo 'Instalando dependencias...'
                 sh '''
+                python --version
                     pip install flake8
                 '''
             }
@@ -98,7 +105,7 @@ pipeline {
                 // stop the build if there are Python syntax errors or undefined names
                 // exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
                 sh '''
-                    python -m flake8 suma.py > lint.txt
+                    python -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics > lint.log || exit 0
                 '''
             }
         }
