@@ -33,11 +33,7 @@ pipeline {
 
         stage('Installing dependencies') {
             agent {
-                docker {
-                    image 'python:3.12-slim'          // o python:3.11-slim, python:3.13-slim...
-                    reuseNode true                    // ← Importante: comparte el workspace con Jenkins
-                    args '-u root:root'               // Evita problemas de permisos en el workspace
-                }
+                label 'python3.12'
             }
             steps {
                 echo 'Instalando dependencias...'
