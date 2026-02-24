@@ -31,16 +31,6 @@ pipeline {
             }
         }
 
-        stage('Fix ShiningPanda permissions') {
-            steps {
-                sh '''
-                    chmod +x /var/jenkins_home/tools/jenkins.plugins.shiningpanda.tools.PythonInstallation/Python-3.12.7/bin/python* || true
-                    chmod +x /var/jenkins_home/tools/jenkins.plugins.shiningpanda.tools.PythonInstallation/Python-3.12.7/bin/pip* || true
-                    ls -l /var/jenkins_home/tools/jenkins.plugins.shiningpanda.tools.PythonInstallation/Python-3.12.7/bin/
-                '''
-            }
-        }
-        
         stage('Installing dependencies') {
             steps {
                 echo 'Instalando dependencias...'
