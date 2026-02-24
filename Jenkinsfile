@@ -33,7 +33,7 @@ pipeline {
 
         stage('Installing dependencies') {
             agent {
-                label 'python3.12'
+                docker { image 'python:3.12-slim' }
             }
             steps {
                 echo 'Instalando dependencias...'
