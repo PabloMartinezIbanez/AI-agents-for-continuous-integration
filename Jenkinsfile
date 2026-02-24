@@ -3,6 +3,7 @@ pipeline {
 
     tools {
         nodejs '25.6.1'
+        python 'Python-3.12.7'
     }
 
     environment {
@@ -13,8 +14,6 @@ pipeline {
         githubPush()
     }
 
-    
-    
     stages {
         stage('Checkout') {
             steps {
@@ -25,10 +24,20 @@ pipeline {
         
         stage('Setup node') {
             steps {
-                echo 'Verificando instalación de Node...'
+                echo 'Verificando instalación de Node y Python...'
                 sh '''
                     node --version
                     npm --version
+                    python --version
+                '''
+            }
+        }
+
+        stage('Installing dependencies') {
+            steps {
+                echo 'Instalando dependencias...'
+                sh '''
+                    pip install flake8
                 '''
             }
         }
@@ -90,7 +99,7 @@ pipeline {
                 // stop the build if there are Python syntax errors or undefined names
                 // exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
                 sh '''
-                    npm run lint > lint.txt
+                    python -m flake8 suma.py > lint.txt
                 '''
             }
         }
@@ -99,7 +108,7 @@ pipeline {
             steps {
                 echo 'Ejecutando tests con pytest...'
                 sh '''
-                    npm run test > tests.txt
+                    python -m pytest test_suma.py > tests.txt
                 '''
             }
         }
