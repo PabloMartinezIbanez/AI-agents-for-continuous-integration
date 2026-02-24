@@ -4,7 +4,7 @@ pipeline {
     tools {
         nodejs '25.6.1'
     }
-    
+
     environment {
         GEMINI_API_KEY = credentials('GEMINI_API_KEY')
     }
@@ -27,16 +27,8 @@ pipeline {
             steps {
                 echo 'Verificando instalación de Node...'
                 sh '''
-                    npm version
-                '''
-            }
-        }
-        
-        stage('Install Dependencies') {
-            steps {
-                echo 'Instalando dependencias...'
-                sh '''
-                    npm ci
+                    node --version
+                    npm --version
                 '''
             }
         }
