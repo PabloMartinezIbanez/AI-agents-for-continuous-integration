@@ -24,6 +24,21 @@ RUN curl -sSL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.z
     chmod +x /usr/local/bin/ngrok && \
     rm ngrok.zip
 
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    python3-venv \
+    python3-dev \
+    && \
+    python3 -m venv /opt/venv && \
+    /opt/venv/bin/pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    /opt/venv/bin/pip install --no-cache-dir flake8 && \
+    ln -sf /opt/venv/bin/python /usr/local/bin/python && \
+    ln -sf /opt/venv/bin/pip /usr/local/bin/pip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Crear un entrypoint wrapper para lanzar Jenkins + ngrok en background
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
