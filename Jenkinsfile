@@ -31,23 +31,14 @@ pipeline {
             }
         }
 
-        stage('Setup python') {
-            steps {
-                withPythonEnv('Python-3.12.7') {
-                    sh 'python --version || echo "Falla por permisos"'
-                }
-            }  
-        }
 
         stage('Installing dependencies') {
             steps {
                 echo 'Instalando dependencias...'
-                withPythonEnv('Python-3.12.7'){
                     sh '''
                         python --version
                         pip install flake8
                     '''
-                }
             }
         }
 
