@@ -119,6 +119,7 @@ pipeline {
                 echo 'Analizando resultados con IA...'
                 sh '''
                     #node ia_analyzer.js || true
+                    " " > ai_report.md
                 '''
             }
         }
