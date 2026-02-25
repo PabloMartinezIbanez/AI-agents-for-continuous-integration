@@ -119,7 +119,7 @@ pipeline {
                 echo 'Analizando resultados con IA...'
                 sh '''
                     #node ia_analyzer.js || true
-                    " " > ai_report.md
+                    echo 'No AI analysis performed' > ai_report.md
                 '''
             }
         }
