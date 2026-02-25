@@ -37,7 +37,8 @@ pipeline {
                 echo 'Instalando dependencias...'
                     sh '''
                         python --version
-                        pip install flake8
+                        pip install flake8 --quiet
+                        pip install pytest --quiet
                     '''
             }
         }
