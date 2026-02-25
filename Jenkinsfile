@@ -118,7 +118,7 @@ pipeline {
             steps {
                 echo 'Analizando resultados con IA...'
                 sh '''
-                    node ia_analyzer.js
+                    node ia_analyzer.js || true
                 '''
             }
         }
