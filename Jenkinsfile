@@ -123,13 +123,6 @@ pipeline {
             }
         }
         
-        stage('List Artifacts') {
-            steps {
-                echo 'Archivos generados:'
-                sh 'ls -la'
-            }
-        }
-        
         stage('Archive Artifacts') {
             steps {
                 echo 'Archivando logs...'
