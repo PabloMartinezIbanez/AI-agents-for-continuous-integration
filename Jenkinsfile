@@ -31,6 +31,19 @@ pipeline {
             }
         }
 
+        stage('Fix ShiningPanda permissions') {
+            steps {
+                sh '''
+                    # Forzar ejecución en todos los binarios de Python que ShiningPanda extrajo
+                    chmod +x /var/jenkins_home/tools/jenkins.plugins.shiningpanda.tools.PythonInstallation/Python-3.12.7/bin/python* || true
+                    chmod +x /var/jenkins_home/tools/jenkins.plugins.shiningpanda.tools.PythonInstallation/Python-3.12.7/bin/pip* || true
+                    
+                    # Debug: mostrar permisos actuales
+                    ls -l /var/jenkins_home/tools/jenkins.plugins.shiningpanda.tools.PythonInstallation/Python-3.12.7/bin/ || echo 'Directorio no encontrado'
+                '''
+            }
+        }
+
         stage('Installing dependencies') {
             steps {
                 echo 'Instalando dependencias...'
