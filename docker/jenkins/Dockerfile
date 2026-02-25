@@ -28,24 +28,30 @@ RUN curl -sSL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.z
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Crear directorio con permisos correctos para el usuario jenkins
-RUN mkdir -p /opt/python/3.12.7 && \
-    chown -R jenkins:jenkins /opt/python
+# Dependencias para compilar Python
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev \
+    libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev \
+    tk-dev liblzma-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Descargar y descomprimir Python manualmente
+# Descargar, compilar e instalar Python 3.12.7 en /opt/python/3.12
 RUN cd /tmp && \
-    curl -L -o Python-3.12.7.tgz https://www.python.org/ftp/python/3.12.7/Python-3.12.7.tgz && \
+    wget https://www.python.org/ftp/python/3.12.7/Python-3.12.7.tgz && \
     tar -xzf Python-3.12.7.tgz && \
-    mv Python-3.12.7/* /opt/python/3.12.7/ && \
+    cd Python-3.12.7 && \
+    ./configure --enable-optimizations --prefix=/opt/python/3.12 && \
+    make -j$(nproc) && \
+    make altinstall && \
+    cd /tmp && \
     rm -rf Python-3.12.7 Python-3.12.7.tgz && \
-    chown -R jenkins:jenkins /opt/python/3.12.7 && \
-    chmod -R +x /opt/python/3.12.7/bin/*
+    # Permisos y symlinks
+    chown -R jenkins:jenkins /opt/python && \
+    chmod -R +x /opt/python/3.12/bin/* && \
+    ln -sf /opt/python/3.12/bin/python3.12 /usr/local/bin/python && \
+    ln -sf /opt/python/3.12/bin/pip3.12 /usr/local/bin/pip
 
-# Crear symlinks para facilitar el uso
-RUN ln -sf /opt/python/3.12.7/bin/python3 /usr/local/bin/python && \
-    ln -sf /opt/python/3.12.7/bin/pip3 /usr/local/bin/pip
-
-# Verificar
+# Verificar (opcional, pero útil en build)
 RUN python --version && pip --version
 
 # Volver al usuario jenkins (seguridad)
