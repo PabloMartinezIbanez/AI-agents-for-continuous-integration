@@ -27,6 +27,7 @@ pipeline {
                 sh '''
                     node --version
                     npm --version
+                    npm install -g eslint
                 '''
             }
         }
@@ -102,6 +103,71 @@ pipeline {
                 sh '''
                     python -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics > lint.log || exit 0
                 '''
+            }
+        }
+
+        stage('Lint archivos modificados') {
+            steps {
+                script {
+                    def lintFile = 'lint.txt'
+                    // Vaciar lint.txt si existe
+                    sh "echo '' > ${lintFile}"
+
+                    // Obtener lista de archivos modificados (adaptado al contexto)
+                    def modifiedFiles
+                    if (env.CHANGE_ID) {
+                        // PR: todos los archivos cambiados en el PR
+                        modifiedFiles = sh(script: "git diff --name-only origin/${env.CHANGE_TARGET ?: 'main'}...HEAD", returnStdout: true).trim().split('\n')
+                    } else {
+                        // Push/manual: archivos del último commit
+                        modifiedFiles = sh(script: "git diff --name-only HEAD~1...HEAD", returnStdout: true).trim().split('\n')
+                    }
+
+                    echo "Archivos modificados detectados: ${modifiedFiles}"
+
+                    // Para cada archivo, detectar lenguaje por extensión y lint
+                    modifiedFiles.each { file ->
+                        if (file.trim()) {  // Ignorar vacíos
+                            def ext = file.split('\\.')[-1]?.toLowerCase()  // Extensión (e.g., 'py')
+                            echo "Procesando archivo: ${file} (ext: ${ext})"
+
+                            switch (ext) {
+                                case 'py':
+                                    // Linter para Python: flake8 (asumiendo instalado via pip o global)
+                                    sh """
+                                        echo "Lint de ${file} (flake8):" >> ${lintFile}
+                                        python -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics >> ${lintFile} 2>&1 || true  # Continúa si falla
+                                        echo "" >> ${lintFile}  # Separador
+                                    """
+                                    break
+                                case 'js':
+                                    // Linter para JS: eslint (asumiendo instalado via npm global o local)
+                                    sh """
+                                        echo "Lint de ${file} (eslint):" >> ${lintFile}
+                                        eslint '${file}' >> ${lintFile} 2>&1 || true
+                                        echo "" >> ${lintFile}
+                                    """
+                                    break
+                                // Añade más linters aquí, e.g.:
+                                // case 'rb':  // Ruby con rubocop
+                                //     sh "rubocop '${file}' >> ${lintFile} 2>&1 || true"
+                                // case 'java':  // Java con checkstyle
+                                //     sh "checkstyle -c /path/to/config.xml '${file}' >> ${lintFile} 2>&1 || true"
+                                default:
+                                    echo "No linter configurado para extensión '${ext}' en ${file}. Saltando."
+                            }
+                        }
+                    }
+
+                    // Verificación final de lint.txt
+                    sh "ls -l ${lintFile}"
+                    sh "cat ${lintFile} || echo 'Lint vacío'"
+
+                    // Aquí puedes pasar lint.txt a la IA (e.g., readFile y enviar)
+                    def lintContent = readFile(lintFile)
+                    echo "Output de linters listo para IA: ${lintContent.take(500)}..."  // Preview
+                    // Ejemplo: sh "node reviewer.js '${diffFile}' '${lintFile}'"
+                }
             }
         }
 
