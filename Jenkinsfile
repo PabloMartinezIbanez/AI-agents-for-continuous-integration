@@ -133,7 +133,7 @@ pipeline {
                                     // Linter para JS: eslint (asumiendo instalado via npm global o local)
                                     sh """
                                         echo "Lint de ${file} (eslint):" >> ${lintFile}
-                                        eslint '${file}' >> ${lintFile} 2>&1 || true
+                                        eslint --config library/eslint.config.mjs '${file}' >> ${lintFile} 2>&1 || true
                                         echo "" >> ${lintFile}
                                     """
                                     break
