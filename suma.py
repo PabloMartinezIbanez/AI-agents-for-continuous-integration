@@ -6,7 +6,7 @@ Script simple que suma dos números
 
 def main():
     print("=== Calculadora de Suma ===")
-     
+    
     try:
         numero1 = float(input("Ingresa el primer número: "))
         numero2 = float(input("Ingresa el segundo número: "))
