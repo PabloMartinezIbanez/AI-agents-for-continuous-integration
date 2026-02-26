@@ -34,10 +34,7 @@ pipeline {
                         eslint@10 \
                         @eslint/js \
                         globals \
-                        typescript-eslint \
-                        eslint-plugin-react \
-                        @eslint/json \
-                        @eslint/css
+                        @eslint/json
                 '''
             }
         }
