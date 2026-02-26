@@ -1,6 +1,5 @@
 import { createInterface } from 'readline';
-
-
+import fs;
 
 function suma(a, b) {
     return a + b;
