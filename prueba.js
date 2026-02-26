@@ -1,5 +1,4 @@
 import { createInterface } from 'readline';
-import fs;
 
 function suma(a, b) {
     return a + b;
@@ -30,6 +29,9 @@ async function main() {
     console.log("Resultado de la resta:", resta(num1, num2));
 
     rl.close();
+    ;
 }
 
 main();
+
+
