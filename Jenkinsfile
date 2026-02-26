@@ -27,8 +27,9 @@ pipeline {
                 sh '''
                     node --version
                     npm --version
-                    npm init -ys
+                    npm init -y --scope=@temp || true
 
+                    # Instalar ESLint + TODOS los paquetes que importas en eslint.config.mjs
                     npm install --save-dev \
                         eslint@10 \
                         @eslint/js \
@@ -37,7 +38,6 @@ pipeline {
                         eslint-plugin-react \
                         @eslint/json \
                         @eslint/css
-                    npm install -g eslint
                 '''
             }
         }
