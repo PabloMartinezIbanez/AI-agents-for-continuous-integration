@@ -9,6 +9,7 @@ function resta(a, b) {
     return a - b;
 }
 
+
 async function main() {
     const rl = createInterface({
         input: process.stdin,

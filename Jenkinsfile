@@ -27,13 +27,16 @@ pipeline {
                 sh '''
                     node --version
                     npm --version
-                    npm init -y
+                    npm init -ys
 
-                    # Instalar ESLint + paquetes que importas en el config
-                    npm install --save-dev eslint@10 @eslint/js
-
-                    # Si usas TypeScript o React, añade también:
-                    # npm install --save-dev @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint-plugin-react
+                    npm install --save-dev \
+                        eslint@10 \
+                        @eslint/js \
+                        globals \
+                        typescript-eslint \
+                        eslint-plugin-react \
+                        @eslint/json \
+                        @eslint/css
                     npm install -g eslint
                 '''
             }
