@@ -95,17 +95,6 @@ pipeline {
         
         }
 
-        stage('Lint') {
-            steps {
-                echo 'Ejecutando lint con flake8...'
-                // stop the build if there are Python syntax errors or undefined names
-                // exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-                sh '''
-                    python -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics > lint.log || exit 0
-                '''
-            }
-        }
-
         stage('Lint archivos modificados') {
             steps {
                 script {
