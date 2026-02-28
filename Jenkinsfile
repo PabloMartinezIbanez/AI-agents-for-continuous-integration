@@ -7,6 +7,9 @@ pipeline {
 
     environment {
         GEMINI_API_KEY = credentials('GEMINI_API_KEY')
+        LANG     = 'C.UTF-8'
+        LC_ALL   = 'C.UTF-8'
+        LC_CTYPE = 'C.UTF-8'
     }
 
     triggers {
@@ -115,7 +118,7 @@ pipeline {
 
                     echo "Archivos modificados detectados: ${modifiedFiles}"
 
-                    // Para cada archivo, detectar lenguaje por extensión y lint
+                    // Para cada archivo, detectar lenguaje por extension y lint
                     modifiedFiles.each { file ->
                         if (file.trim()) {  // Ignorar vacíos
                             def ext = file.split('\\.')[-1]?.toLowerCase()  // Extensión (e.g., 'py')
