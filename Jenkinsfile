@@ -7,9 +7,6 @@ pipeline {
 
     environment {
         GEMINI_API_KEY = credentials('GEMINI_API_KEY')
-        LANG     = 'C.UTF-8'
-        LC_ALL   = 'C.UTF-8'
-        LC_CTYPE = 'C.UTF-8'
     }
 
     triggers {
