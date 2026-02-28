@@ -28,7 +28,8 @@ pipeline {
                         sh '''
                             node --version
                             npm --version
-                            npm init -y --scope=@temp || true
+                            npm config set cache /tmp/npm-cache --global
+                            npm init -y || true
 
                             # Instalar ESLint + TODOS los paquetes que importas en eslint.config.mjs
                             npm install --save-dev \
@@ -90,10 +91,6 @@ pipeline {
                         // Alternativa: si quieres diff acumulado desde origin/main (por si la rama está divergiendo)
                         // sh "git diff --unified=0 origin/main...HEAD > ${diffFile}"
                     }
-
-                    // Verificación común: asegúrate de que diff.txt existe y tiene contenido
-                    sh "ls -l ${diffFile}"
-                    sh "head -n 20 ${diffFile} || echo 'Diff vacío o no generado'"
                 }
             }
         
@@ -153,10 +150,6 @@ pipeline {
                             }
                         }
                     }
-
-                    // Verificación final de lint.txt
-                    sh "ls -l ${lintFile}"
-                    sh "cat ${lintFile} || echo 'Lint vacío'"
                 }
             }
         }
@@ -194,7 +187,7 @@ pipeline {
     post {
         success {
             echo 'Build completado exitosamente!'
-            echo 'El ejecutable suma.exe está disponible en los artefactos'
+            echo 'Los archivos creados se encuentran en los artefactos'
         }
         failure {
             echo 'El build ha fallado. Revisa los logs para más información.'
