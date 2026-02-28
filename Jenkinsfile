@@ -21,33 +21,34 @@ pipeline {
             }
         }
         
-        stage('Setup node') {
-            steps {
-                echo 'Verificando instalación de Node y Python...'
-                sh '''
-                    node --version
-                    npm --version
-                    npm init -y --scope=@temp || true
+        stage('Setup Enviroments'){
+            parallel {
+                stage('Setup node') {
+                    steps {
+                        sh '''
+                            node --version
+                            npm --version
+                            npm init -y --scope=@temp || true
 
-                    # Instalar ESLint + TODOS los paquetes que importas en eslint.config.mjs
-                    npm install --save-dev \
-                        eslint@10 \
-                        @eslint/js \
-                        globals \
-                        @eslint/json
-                '''
-            }
-        }
+                            # Instalar ESLint + TODOS los paquetes que importas en eslint.config.mjs
+                            npm install --save-dev \
+                            eslint@10 \
+                            @eslint/js \
+                            globals \
+                            @eslint/json
+                        '''
+                    }
+                }
 
-
-        stage('Installing dependencies') {
-            steps {
-                echo 'Instalando dependencias...'
-                    sh '''
-                        python --version
-                        pip install flake8 --quiet
-                        pip install pytest --quiet
-                    '''
+                stage('Setup Python') {
+                    steps {
+                        sh '''
+                            python --version
+                            pip install flake8 --quiet
+                            pip install pytest --quiet
+                        '''
+                    }
+                }
             }
         }
 
@@ -93,10 +94,6 @@ pipeline {
                     // Verificación común: asegúrate de que diff.txt existe y tiene contenido
                     sh "ls -l ${diffFile}"
                     sh "head -n 20 ${diffFile} || echo 'Diff vacío o no generado'"
-
-                    // Aquí puedes pasar diff.txt a la IA (e.g., leerlo y enviarlo a LLM)
-                    def diffContent = readFile(diffFile)
-                    echo "Contenido de diff.txt listo para IA: ${diffContent.take(500)}..."  // Preview corto
                 }
             }
         
@@ -132,13 +129,15 @@ pipeline {
                                     // Linter para Python: flake8 (asumiendo instalado via pip o global)
                                     sh """
                                         echo "Lint de ${file} (flake8):" >> ${lintFile}
-                                        python -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics >> ${lintFile} 2>&1 || true  # Continúa si falla
+                                        python -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 >> ${lintFile} 2>&1 || true  # Continúa si falla
                                         echo "" >> ${lintFile}  # Separador
                                     """
                                     break
                                 case 'js':
                                     // Linter para JS: eslint (asumiendo instalado via npm global o local)
                                     sh """
+                                        export LANG=C.UTF-8
+                                        export LC_ALL=C.UTF-8
                                         echo "Lint de ${file} (eslint):" >> ${lintFile}
                                         eslint --config "${WORKSPACE}/Library/eslint.config.mjs" '${file}' >> ${lintFile} 2>&1 || true
                                         echo "" >> ${lintFile}
@@ -158,11 +157,6 @@ pipeline {
                     // Verificación final de lint.txt
                     sh "ls -l ${lintFile}"
                     sh "cat ${lintFile} || echo 'Lint vacío'"
-
-                    // Aquí puedes pasar lint.txt a la IA (e.g., readFile y enviar)
-                    def lintContent = readFile(lintFile)
-                    echo "Output de linters listo para IA: ${lintContent.take(500)}..."  // Preview
-                    // Ejemplo: sh "node reviewer.js '${diffFile}' '${lintFile}'"
                 }
             }
         }
