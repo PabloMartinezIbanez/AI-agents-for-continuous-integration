@@ -30,9 +30,13 @@ pipeline {
                 }
             }
             steps {
-                sh '/usr/bin/python --version'
+                sh '''
+                    python3 --version
+                    pip3 install flake8
+                    flake8 . || true
+                '''
             }
-                }
+        }
     }
     post {
         success {
