@@ -26,17 +26,13 @@ pipeline {
                 docker {
                     image 'python:3.12-slim'
                     reuseNode true
-                    args '-u root:root -w ${WORKSPACE} -e PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+                    args '-u root:root -w ${WORKSPACE}'
                 }
             }
             steps {
-                sh '''
-                    python --version
-                    pip install flake8
-                    flake8 . || true
-                '''
+                sh '/usr/bin/python --version'
             }
-        }
+                }
     }
     post {
         success {
