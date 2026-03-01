@@ -24,6 +24,13 @@ pipeline {
         stage('Setup Enviroments'){
             parallel {
                 stage('Setup node') {
+                    agent {
+                        docker {
+                            image 'node:20-slim'
+                            reuseNode true
+                            args '-u root:root -w ${WORKSPACE} -e LANG=C.UTF-8 -e LC_ALL=C.UTF-8'
+                        }
+                    }
                     steps {
                         sh '''
                             node --version
@@ -43,6 +50,13 @@ pipeline {
                 }
 
                 stage('Setup Python') {
+                    agent {
+                        docker {
+                            image 'python:3.12-slim'
+                            reuseNode true
+                            args '-u root:root -w ${WORKSPACE} -e LANG=C.UTF-8 -e LC_ALL=C.UTF-8'
+                        }
+                    }
                     steps {
                         sh '''
                             python --version
