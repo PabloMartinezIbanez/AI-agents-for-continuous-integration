@@ -3,6 +3,7 @@ pipeline {
 
     tools {
         nodejs '25.6.1'
+        git 'Git-v2.46.0'
     }
 
     environment {
