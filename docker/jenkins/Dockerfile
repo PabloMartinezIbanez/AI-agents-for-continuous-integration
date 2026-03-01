@@ -54,6 +54,27 @@ RUN cd /tmp && \
 # Verificar (opcional, pero útil en build)
 RUN python --version && pip --version
 
+# Instalar dependencias básicas + cliente Docker (docker-ce-cli)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    ca-certificates \
+    gnupg \
+    lsb-release \
+    && \
+    # Añadir la clave oficial de Docker
+    curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
+    # Añadir el repositorio de Docker
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | \
+    tee /etc/apt/sources.list.d/docker.list > /dev/null && \
+    apt-get update && \
+    # Instalar solo el cliente Docker (no el daemon completo, que no hace falta)
+    apt-get install -y docker-ce-cli && \
+    # Verificar instalación
+    docker --version && \
+    # Limpieza para reducir tamaño de la imagen
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Volver al usuario jenkins (seguridad)
 USER jenkins
 
