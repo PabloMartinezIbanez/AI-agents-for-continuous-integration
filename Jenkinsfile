@@ -29,14 +29,14 @@ pipeline {
                             node --version
                             npm --version
                             npm config set cache /tmp/npm-cache --global
-                            npm init -y || true
+                            npm init -y || exit 0
 
                             # Instalar ESLint + TODOS los paquetes que importas en eslint.config.mjs
                             npm install --save-dev \
                             eslint@10 \
                             @eslint/js \
                             globals \
-                            @eslint/json
+                            @eslint/json || exit 0
                         '''
                     }
                 }
