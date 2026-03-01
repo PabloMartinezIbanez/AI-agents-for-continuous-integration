@@ -21,25 +21,36 @@ pipeline {
             }
         }
         
-        stage('Setup node') {
-            steps {
-                echo 'Verificando instalación de Node y Python...'
-                sh '''
-                    node --version
-                    npm --version
-                '''
-            }
-        }
+        stage('Setup Enviroments'){
+            parallel {
+                stage('Setup node') {
+                    steps {
+                        sh '''
+                            node --version
+                            npm --version
+                            npm config set cache /tmp/npm-cache --global
+                            npm init -y --quiet > /dev/null 2>&1 || true
 
+                            # Instalar ESLint + TODOS los paquetes que importas en eslint.config.mjs
+                            npm install --save-dev \
+                            eslint@10 \
+                            @eslint/js \
+                            globals \
+                            @eslint/json \
+                            --quiet --no-fund --no-audit > /dev/null 2>&1 || true
+                        '''
+                    }
+                }
 
-        stage('Installing dependencies') {
-            steps {
-                echo 'Instalando dependencias...'
-                    sh '''
-                        python --version
-                        pip install flake8 --quiet
-                        pip install pytest --quiet
-                    '''
+                stage('Setup Python') {
+                    steps {
+                        sh '''
+                            python --version
+                            pip install flake8 --quiet
+                            pip install pytest --quiet
+                        '''
+                    }
+                }
             }
         }
 
@@ -81,27 +92,66 @@ pipeline {
                         // Alternativa: si quieres diff acumulado desde origin/main (por si la rama está divergiendo)
                         // sh "git diff --unified=0 origin/main...HEAD > ${diffFile}"
                     }
-
-                    // Verificación común: asegúrate de que diff.txt existe y tiene contenido
-                    sh "ls -l ${diffFile}"
-                    sh "head -n 20 ${diffFile} || echo 'Diff vacío o no generado'"
-
-                    // Aquí puedes pasar diff.txt a la IA (e.g., leerlo y enviarlo a LLM)
-                    def diffContent = readFile(diffFile)
-                    echo "Contenido de diff.txt listo para IA: ${diffContent.take(500)}..."  // Preview corto
                 }
             }
         
         }
 
-        stage('Lint') {
+        stage('Lint archivos modificados') {
             steps {
-                echo 'Ejecutando lint con flake8...'
-                // stop the build if there are Python syntax errors or undefined names
-                // exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-                sh '''
-                    python -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics > lint.log || exit 0
-                '''
+                script {
+                    def lintFile = 'lint.txt'
+                    // Vaciar lint.txt si existe
+                    sh "echo '' > ${lintFile}"
+
+                    // Obtener lista de archivos modificados (adaptado al contexto)
+                    def modifiedFiles
+                    if (env.CHANGE_ID) {
+                        // PR: todos los archivos cambiados en el PR
+                        modifiedFiles = sh(script: "git diff --name-only origin/${env.CHANGE_TARGET ?: 'main'}...HEAD", returnStdout: true).trim().split('\n')
+                    } else {
+                        // Push/manual: archivos del último commit
+                        modifiedFiles = sh(script: "git diff --name-only HEAD~1...HEAD", returnStdout: true).trim().split('\n')
+                    }
+
+                    echo "Archivos modificados detectados: ${modifiedFiles}"
+
+                    // Para cada archivo, detectar lenguaje por extension y lint
+                    modifiedFiles.each { file ->
+                        if (file.trim()) {  // Ignorar vacíos
+                            def ext = file.split('\\.')[-1]?.toLowerCase()  // Extensión (e.g., 'py')
+                            echo "Procesando archivo: ${file} (ext: ${ext})"
+
+                            switch (ext) {
+                                case 'py':
+                                    // Linter para Python: flake8 (asumiendo instalado via pip o global)
+                                    sh """
+                                        echo "Lint de ${file} (flake8):" >> ${lintFile}
+                                        python -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 >> ${lintFile} 2>&1 || true  # Continúa si falla
+                                        echo "" >> ${lintFile}  # Separador
+                                    """
+                                    break
+                                case 'js':
+                                    // Linter para JS: eslint (asumiendo instalado via npm global o local)
+                                    sh """
+                                        export LANG=C.UTF-8
+                                        export LC_ALL=C.UTF-8
+                                        echo "Lint de ${file} (eslint):" >> ${lintFile}
+                                        eslint --config "${WORKSPACE}/Library/eslint.config.mjs" '${file}' >> ${lintFile} 2>&1 || true
+                                        echo "" >> ${lintFile}
+                                    """
+                                    break
+                                // Añade más linters aquí, e.g.:
+                                // case 'rb':  // Ruby con rubocop
+                                //     sh "rubocop '${file}' >> ${lintFile} 2>&1 || true"
+                                // case 'java':  // Java con checkstyle
+                                //     sh "checkstyle -c /path/to/config.xml '${file}' >> ${lintFile} 2>&1 || true"
+                                default:
+                                    echo "No linter configurado para extensión '${ext}' en ${file}. Saltando."
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -138,7 +188,7 @@ pipeline {
     post {
         success {
             echo 'Build completado exitosamente!'
-            echo 'El ejecutable suma.exe está disponible en los artefactos'
+            echo 'Los archivos creados se encuentran en los artefactos'
         }
         failure {
             echo 'El build ha fallado. Revisa los logs para más información.'

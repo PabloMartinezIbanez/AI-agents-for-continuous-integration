@@ -1,0 +1,20 @@
+{
+  "name": "library",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@eslint/css": "^0.14.1",
+    "@eslint/js": "^9.39.3",
+    "@eslint/json": "^0.14.0",
+    "eslint": "^9.39.3",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^17.3.0",
+    "typescript-eslint": "^8.56.1"
+  }
+}
