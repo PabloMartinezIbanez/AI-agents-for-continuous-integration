@@ -6,7 +6,7 @@ pipeline {
     }
 
     tools {
-        docker 'Docker-v27.3.1'   // ← Usa la versión que configuraste
+        dockerTool 'Docker-v27.3.1'   // ← Usa la versión que configuraste
     }
 
     stages {
