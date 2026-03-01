@@ -26,7 +26,7 @@ pipeline {
                 docker {
                     image 'python:3.12-slim'
                     reuseNode true
-                    args '-u root:root -w ${WORKSPACE}'
+                    args '-u root:root -w ${WORKSPACE} -e PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
                 }
             }
             steps {
