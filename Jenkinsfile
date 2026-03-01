@@ -21,18 +21,19 @@ pipeline {
             }
         }
 
-        stage('Ejecutar Python en Docker') {
-            agent {
-                docker {
-                    image 'python:3.12-slim'
-                    reuseNode true
-                    args '-u root:root -w ${WORKSPACE}'
-                }
-            }
+        stage('Ejecutar Python') {
             steps {
-                sh '/usr/bin/python --version'
-            }
+                script {
+                    docker.withServer('tcp://host.docker.internal:2375') {  // si usas TCP en Windows
+                        docker.image('python:3.12-slim').inside('-u root -w /workspace') {
+                            sh 'python --version'
+                            sh 'pip install flake8'
+                            sh 'flake8 . || true'
+                        }
+                    }
                 }
+            }
+        }
     }
     post {
         success {
