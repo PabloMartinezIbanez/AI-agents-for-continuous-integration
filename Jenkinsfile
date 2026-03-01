@@ -5,28 +5,15 @@ pipeline {
         githubPush()
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                echo 'Obteniendo código del repositorio...'
-                checkout scm
-            }
-        }
+    tools {
+        docker 'Docker-v27.3.1'   // ← Usa la versión que configuraste
+    }
 
-        stage('Ejecutar Python en contenedor Docker') {
-            agent {
-                docker {
-                    image 'python:3.12-slim'
-                    reuseNode true             // ← Comparte el workspace con el nodo principal
-                    args '-u root:root'        // Evita problemas de permisos
-                }
-            }
+    stages {
+        stage('Usar Docker') {
             steps {
-                sh '''
-                    python --version
-                    pip install flake8
-                    flake8 . || true   # O tu comando real de lint
-                '''
+                sh 'docker --version'   // Debería mostrar 27.3.1
+                sh 'docker run --rm hello-world'   // Prueba simple
             }
         }
     }
