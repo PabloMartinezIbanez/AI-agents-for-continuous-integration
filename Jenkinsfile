@@ -3,6 +3,7 @@ pipeline {
 
     tools {
         nodejs '25.6.1'
+        docker 'Docker-v27.3.1'
     }
 
     environment {
