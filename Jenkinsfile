@@ -24,8 +24,6 @@ pipeline {
             agent{
                 dockerContainer {
                     image 'python:3.12-slim'
-                    reuseNode true
-                    args '-u root:root -w ${WORKSPACE}'
                 }
             }
             steps {
