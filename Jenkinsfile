@@ -21,8 +21,8 @@ pipeline {
         }
 
         stage('Ejecutar Python en Docker') {
-            agent {
-                docker-agent {
+            docker-agent{
+                docker {
                     image 'python:3.12-slim'
                     reuseNode true
                     args '-u root:root -w ${WORKSPACE}'
