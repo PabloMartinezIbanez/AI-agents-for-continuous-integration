@@ -4,7 +4,10 @@ pipeline {
     triggers {
         githubPush()
     }
-
+    environment {
+        DOCKER_HOST = 'tcp://host.docker.internal:2375'
+    }
+    
     tools {
         dockerTool 'Docker-v27.3.1'   // ← Usa la versión que configuraste
     }
