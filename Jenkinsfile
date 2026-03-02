@@ -7,7 +7,7 @@ pipeline {
     environment {
         DOCKER_HOST = 'tcp://host.docker.internal:2375'
     }
-    
+
     tools {
         dockerTool 'Docker-v27.3.1'   // ← Usa la versión que configuraste
     }
@@ -22,7 +22,7 @@ pipeline {
 
         stage('Ejecutar Python en Docker') {
             agent {
-                docker {
+                docker-agent {
                     image 'python:3.12-slim'
                     reuseNode true
                     args '-u root:root -w ${WORKSPACE}'
