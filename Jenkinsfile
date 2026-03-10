@@ -1,11 +1,11 @@
 pipeline {
     agent any
-    
+
     triggers {
         githubPush()
     }
 
-    steps {
+    stages {
         stage('Scan') {
             steps {
                 withSonarQubeEnv(installationName: 'sonarQube_server') {
