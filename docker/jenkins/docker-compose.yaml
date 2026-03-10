@@ -22,6 +22,45 @@ services:
       NGROK_REGION: "eu" # opcional: descomenta y pon tu región preferida
     entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
 
+  sonarqube:
+    container_name: sonarqube
+    image: sonarqube:2025.1.6-developer
+    ports:
+      - "9000:9000"
+    networks:
+      - sonarnet
+    environment:
+      - SONARQUBE_JDBC_URL=jdbc:postgresq1://db:5432/sonar
+      - SONARQUBE_JDBC_USERNAME=${SONARQUBE_JDBC_USERNAME}
+      - SONARQUBE_JDBC_PASSWORD=${SONARQUBE_JDBC_PASSWORD}
+    volumes:
+      - sonarqube_conf:/opt/sonarqube/conf
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_bundled-plugins:/opt/sonarqube/lib/bundled-plugins
+
+  db:
+    container_name: postgresq1
+    image: postgres:15.17
+    networks:
+      - sonarnet
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgresq1:/var/lib/postgresq1
+      - postgresq1_data:/var/lib/postgresq1/data
+
+networks:
+  sonarnet:
+    driver: bridge
+
 volumes:
   jenkins_home:
     name: jenkins_home_data
+  sonarqube_conf:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_bundled-plugins:
+  postgresq1:
+  postgresq1_data:
