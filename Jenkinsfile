@@ -9,11 +9,7 @@ pipeline {
         stage('Scan') {
             steps {
                 withSonarQubeEnv(installationName: 'sonarQube_server') {
-                    withMaven(
-                        maven: 'Maven_v3.9.13',
-                    ) {
                         sh 'mvn clean sonar:sonar'
-                    }
                 }
             }
         }
