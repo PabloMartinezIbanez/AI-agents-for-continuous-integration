@@ -12,7 +12,7 @@ pipeline {
                     withMaven(
                         maven: 'Maven_v3.9.13',
                     ) {
-                        sh './mvnw clean org. sonarsource. scanner.maven: sonar-maven-plugin:3.9.0.2155:sonar'
+                        sh 'mvn clean sonar:sonar'
                     }
                 }
             }
