@@ -9,7 +9,11 @@ pipeline {
         stage('Scan') {
             steps {
                 withSonarQubeEnv(installationName: 'sonarQube_server') {
-                        sh 'mvn clean sonar:sonar'
+                    withMaven(
+                        maven: 'Maven_v3.9.13',
+                    ) {
+                        sh 'mvn clean verify sonar:sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.token=squ_580f62a18e008f6e984a2c136c2b983d0cd305c3 -Dsonar.verbose=true'
+                    }
                 }
             }
         }
