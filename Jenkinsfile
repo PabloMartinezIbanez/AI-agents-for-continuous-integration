@@ -9,12 +9,12 @@ pipeline {
 
         stage('Scan') {
             steps {
-                withSonarQubeEnv(installationName: 'SonarQube webhook') {
+                withSonarQubeEnv(installationName: 'sonarQube_server') {
                     sh '''
                         sonar-scanner \
                         -Dsonar.projectKey=mi-proyecto \
                         -Dsonar.sources=. \
-                        -Dsonar.host.url=${SONAR_HOST_URL}
+                        -Dsonar.host.url=http://localhost:9000
                     '''
                 }
             }
