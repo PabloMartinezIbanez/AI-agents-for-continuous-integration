@@ -12,7 +12,7 @@ pipeline {
                 withSonarQubeEnv(installationName: 'sonarQube_server') {
                     sh '''
                         sonar-scanner \
-                        -Dsonar.projectKey=mi-proyecto \
+                        -Dsonar.projectKey=AI-agents-for-continuous-integration \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=http://sonarqube:9000
                     '''
