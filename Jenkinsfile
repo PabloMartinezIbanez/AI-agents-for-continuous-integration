@@ -8,12 +8,14 @@ pipeline {
     stages {
 
         stage('Scan') {
-            environment{
-                SONAR_TOKEN = credentials('SonarQube webhook')
-            }
             steps {
                 withSonarQubeEnv(installationName: 'SonarQube webhook') {
-                    sh './gradlew sonar'
+                    sh '''
+                        sonar-scanner \
+                        -Dsonar.projectKey=mi-proyecto \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=${SONAR_HOST_URL}
+                    '''
                 }
             }
         }
