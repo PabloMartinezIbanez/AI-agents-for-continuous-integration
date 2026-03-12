@@ -1,0 +1,108 @@
+{
+  "project": {
+    "key": "AI-agents-for-continuous-integration",
+    "analysisDate": "2026-03-12T18:07:43.512673Z"
+  },
+  "summary": {
+    "totalIssues": 4,
+    "bySeverity": {
+      "CRITICAL": 1,
+      "MAJOR": 1,
+      "MINOR": 2
+    },
+    "byStatus": {
+      "OPEN": 4
+    },
+    "byLanguage": {
+      "docker": 1,
+      "prueba.js": 2,
+      "suma.py": 1
+    },
+    "securityHotspots": 0
+  },
+  "issues": [
+    {
+      "id": 1,
+      "key": "a07ac802-2ca2-493f-9c15-af61dc4c63ee",
+      "severity": "MINOR",
+      "status": "OPEN",
+      "rule": {
+        "key": "docker:S7031",
+        "type": "CODE_SMELL"
+      },
+      "file": "docker/jenkins/Dockerfile",
+      "location": {
+        "startLine": 11,
+        "message": "Merge this RUN instruction with the consecutive ones."
+      },
+      "createdDate": "2026-03-11T12:16:22+0000",
+      "author": "pablomartinezibanez04@gmail.com",
+      "tags": []
+    },
+    {
+      "id": 2,
+      "key": "3fa63c27-7f2a-45b3-88ae-da84748a58f0",
+      "severity": "MINOR",
+      "status": "OPEN",
+      "rule": {
+        "key": "javascript:S7772",
+        "type": "CODE_SMELL"
+      },
+      "file": "prueba.js",
+      "location": {
+        "startLine": 1,
+        "message": "Prefer `node:readline` over `readline`."
+      },
+      "createdDate": "2026-02-25T20:03:56+0000",
+      "author": "pablomartinezibanez04@gmail.com",
+      "tags": [
+        "convention",
+        "import",
+        "nodejs"
+      ]
+    },
+    {
+      "id": 3,
+      "key": "3839b072-07ab-4392-be39-0549633a4522",
+      "severity": "MAJOR",
+      "status": "OPEN",
+      "rule": {
+        "key": "javascript:S7785",
+        "type": "CODE_SMELL"
+      },
+      "file": "prueba.js",
+      "location": {
+        "startLine": 36,
+        "message": "Prefer top-level await over an async function `main` call."
+      },
+      "createdDate": "2026-02-25T20:03:56+0000",
+      "author": "pablomartinezibanez04@gmail.com",
+      "tags": [
+        "async",
+        "es2022",
+        "modernize"
+      ]
+    },
+    {
+      "id": 4,
+      "key": "c53eb911-a67a-4d21-a61b-9c3dce0f621b",
+      "severity": "CRITICAL",
+      "status": "OPEN",
+      "rule": {
+        "key": "python:S1192",
+        "type": "CODE_SMELL"
+      },
+      "file": "suma.py",
+      "location": {
+        "startLine": 18,
+        "message": "Define a constant instead of duplicating this literal \"\\nPresiona Enter para salir...\" 3 times."
+      },
+      "createdDate": "2026-01-30T17:01:11+0000",
+      "author": "pablomartinezibanez04@gmail.com",
+      "tags": [
+        "design"
+      ]
+    }
+  ],
+  "securityHotspots": []
+}
