@@ -13,7 +13,8 @@ RUN apt-get update && \
     curl \
     unzip \
     ca-certificates \
-    libatomic1 && \
+    libatomic1 \
+    python3 && \
     rm -rf /var/lib/apt/lists/*
 
 # ── ngrok ────────────────────────────────────────────────────────────────────
