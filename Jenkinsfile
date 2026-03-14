@@ -2,11 +2,7 @@
 
 pipeline {
     agent any
-
-    tools {
-        python 'python3'
-    }
-
+    
     triggers {
         githubPush()
     }
