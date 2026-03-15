@@ -3,6 +3,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs '25.6.1'
+    }
+
     triggers {
         githubPush()
     }
@@ -39,9 +43,7 @@ pipeline {
                 expression { env.QUALITY_GATE_STATUS != 'OK' }
             }
             steps {
-                sh 'python3 Library/ia_analyzer.py'
-                sh 'git add . && git commit -m "AI fixes for SonarQube issues" || echo "No changes to commit"'
-                sh 'git push'
+                echo "Quality Gate failed with status: ${env.QUALITY_GATE_STATUS}. Attempting to fix issues with AI..."
             }
         }
         stage('Run Tests') {
@@ -50,7 +52,7 @@ pipeline {
             }
             steps {
                 sh 'python3 test.py > py_test_results.txt'
-                sh 'node prueba.test.js > js_test_results.txt || npm test > js_test_results.txt'
+                sh 'npm test > js_test_results.txt'
             }
         }
     }

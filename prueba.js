@@ -1,38 +1,40 @@
 import { createInterface } from 'readline';
 
-function suma(a, b) {
+export function suma(a, b) {
     return a + b;
 
 }
 
-function resta(a, b) {
+export function resta(a, b) {
     return a - b;
 }
 
-async function main() {
-    const rl = createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-
-    const preguntar = (texto) => {
-        return new Promise((resolve) => {
-            rl.question(texto, (respuesta) => {
-                resolve(Number(respuesta));
-            });
+// Función main solo se ejecuta si este archivo es el principal
+if (import.meta.url === `file://${process.argv[1]}`) {
+    async function main() {
+        const rl = createInterface({
+            input: process.stdin,
+            output: process.stdout
         });
-    };
 
-    const num1 = await preguntar("Introduce el primer número: ");
-    const num2 = await preguntar("Introduce el segundo número: ");
+        const preguntar = (texto) => {
+            return new Promise((resolve) => {
+                rl.question(texto, (respuesta) => {
+                    resolve(Number(respuesta));
+                });
+            });
+        };
 
-    console.log("Resultado de la suma:", suma(num1, num2));
-    console.log("Resultado de la resta:", resta(num1, num2));
+        const num1 = await preguntar("Introduce el primer número: ");
+        const num2 = await preguntar("Introduce el segundo número: ");
 
-    rl.close();
-    ;
+        console.log("Resultado de la suma:", suma(num1, num2));
+        console.log("Resultado de la resta:", resta(num1, num2));
+
+        rl.close();
+        ;
+    }
+
+    main();
 }
-
-main();
-
 

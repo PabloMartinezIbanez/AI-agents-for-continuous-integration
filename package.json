@@ -1,0 +1,22 @@
+{
+  "name": "ai-agents-for-continuous-integration",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "This project would be my thesis for the Computer Engineering career",
+  "main": "prueba.js",
+  "dependencies": {
+  },
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PabloMartinezIbanez/AI-agents-for-continuous-integration.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PabloMartinezIbanez/AI-agents-for-continuous-integration/issues"
+  },
+  "homepage": "https://github.com/PabloMartinezIbanez/AI-agents-for-continuous-integration#readme"
+}
