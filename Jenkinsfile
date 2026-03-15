@@ -20,20 +20,20 @@ pipeline {
             }
         }
 
-        stage('Ejecutar Python en Docker') {
-            agent{
-                dockerContainer {
-                    image 'python:3.12-slim'
-                }
-            }
-            steps {
-                sh '''
-                    python3 --version
-                    pip3 install flake8
-                    flake8 . || true
-                '''
-            }
-        }
+        //stage('Ejecutar Python en Docker') {
+        //    agent{
+        //        dockerContainer {
+        //            image 'python:3.12-slim'
+        //        }
+        //    }
+        //    steps {
+        //        sh '''
+        //            python3 --version
+        //            pip3 install flake8
+        //            flake8 . || true
+        //        '''
+        //    }
+        //}
     }
     post {
         success {
