@@ -14,7 +14,7 @@ pipeline {
     environment {
         // Variables de entorno que serán leídas por el script Python
         SONARQUBE_TOKEN = credentials('SONARQUBE_TOKEN')
-        SONARQUBE_URL = 'http://localhost:9000'
+        SONARQUBE_URL = 'http://sonarqube:9000'
         SONARQUBE_PROJECT_KEY = 'AI-agents-for-continuous-integration'
     }
 
@@ -25,9 +25,10 @@ pipeline {
                 withSonarQubeEnv(installationName: 'sonarQube_server') {
                     sh '''
                         sonar-scanner \
-                        -Dsonar.projectKey=AI-agents-for-continuous-integration \
+                        -Dsonar.projectKey=$SONARQUBE_PROJECT_KEY \
                         -Dsonar.sources=. \
-                        -Dsonar.host.url=http://sonarqube:9000
+                        -Dsonar.host.url=$SONARQUBE_URL \
+                        -Dsonar.login=$SONARQUBE_TOKEN
                     '''
                 }
             }
