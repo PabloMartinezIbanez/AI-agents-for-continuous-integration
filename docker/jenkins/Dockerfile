@@ -15,6 +15,7 @@ RUN apt-get update && \
     ca-certificates \
     libatomic1 \
     python3 \
+    python3.13-venv \
     python3-pip && \
     rm -rf /var/lib/apt/lists/*
 
