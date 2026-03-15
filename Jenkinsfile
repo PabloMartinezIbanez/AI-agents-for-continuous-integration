@@ -56,4 +56,9 @@ pipeline {
             }
         }
     }
+    post {
+        always {
+            archiveArtifacts artifacts: 'sonarqube-issues.json', fingerprint: true
+        }
+    }
 }
