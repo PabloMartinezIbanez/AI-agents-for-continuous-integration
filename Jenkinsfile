@@ -11,6 +11,13 @@ pipeline {
         githubPush()
     }
 
+    environment {
+        // Variables de entorno que serán leídas por el script Python
+        SONARQUBE_TOKEN = credentials('SONARQUBE_TOKEN')
+        SONARQUBE_URL = 'http://localhost:9000'
+        SONARQUBE_PROJECT_KEY = 'AI-agents-for-continuous-integration'
+    }
+
     stages {
 
         stage('Scan') {
