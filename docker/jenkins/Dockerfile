@@ -1,69 +1,62 @@
 # Usamos la versión exacta que pides
 FROM jenkins/jenkins:2.541.1-jdk25
 
-# Etiquetas opcionales para documentación
 LABEL maintainer="[EMAIL_ADDRESS]"
-LABEL description="Jenkins con ngrok integrado para exposición automática vía tunnel"
+LABEL description="Jenkins con ngrok integrado para exposición automática vía tunnel y SonarScanner CLI"
 
 # Usuario root temporal para instalar dependencias
 USER root
 
-# Instalar herramientas necesarias (curl + unzip para ngrok)
+# Instalar herramientas necesarias
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
     unzip \
     ca-certificates \
-    libatomic1 &&\
+    libatomic1 \
+    python3 \
+    python3.13-venv \
+    python3-pip && \
     rm -rf /var/lib/apt/lists/*
 
-# Descargar e instalar ngrok (versión estable más reciente en 2026)
-# Puedes fijar una versión concreta si prefieres: https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.zip
-RUN curl -sSL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.zip -o ngrok.zip && \
-    unzip ngrok.zip -d /usr/local/bin/ && \
+# ── ngrok ────────────────────────────────────────────────────────────────────
+RUN curl -sSL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.zip \
+    -o /tmp/ngrok.zip && \
+    unzip /tmp/ngrok.zip -d /usr/local/bin/ && \
     chmod +x /usr/local/bin/ngrok && \
-    rm ngrok.zip
+    rm /tmp/ngrok.zip
 
-# Crear un entrypoint wrapper para lanzar Jenkins + ngrok en background
+# ── SonarScanner CLI ─────────────────────────────────────────────────────────
+# Versión fijada para builds reproducibles; actualiza el número cuando convenga
+ARG SONAR_SCANNER_VERSION=6.1.0.4477
+RUN curl -sSL \
+    "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux-x64.zip" \
+    -o /tmp/sonar-scanner.zip && \
+    unzip /tmp/sonar-scanner.zip -d /opt/ && \
+    mv /opt/sonar-scanner-${SONAR_SCANNER_VERSION}-linux-x64 /opt/sonar-scanner && \
+    ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner && \
+    rm /tmp/sonar-scanner.zip
+
+# Apuntar el JRE del scanner al JDK que ya trae la imagen base
+# (evita que el scanner descargue su propio JRE embebido)
+ENV SONAR_SCANNER_OPTS="-Djava.security.egd=file:/dev/./urandom"
+RUN sed -i 's|#use_embedded_jre=true|use_embedded_jre=false|' \
+    /opt/sonar-scanner/conf/sonar-scanner.properties
+
+# Entrypoint wrapper (Jenkins + ngrok)
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
-
-# Dependencias para compilar Python
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev \
-    libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev \
-    tk-dev liblzma-dev && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Descargar, compilar e instalar Python 3.12.7 en /opt/python/3.12
-RUN cd /tmp && \
-    wget https://www.python.org/ftp/python/3.12.7/Python-3.12.7.tgz && \
-    tar -xzf Python-3.12.7.tgz && \
-    cd Python-3.12.7 && \
-    ./configure --enable-optimizations --prefix=/opt/python/3.12 && \
-    make -j$(nproc) && \
-    make altinstall && \
-    cd /tmp && \
-    rm -rf Python-3.12.7 Python-3.12.7.tgz && \
-    # Permisos y symlinks
-    chown -R jenkins:jenkins /opt/python && \
-    chmod -R +x /opt/python/3.12/bin/* && \
-    ln -sf /opt/python/3.12/bin/python3.12 /usr/local/bin/python && \
-    ln -sf /opt/python/3.12/bin/pip3.12 /usr/local/bin/pip
-
-# Verificar (opcional, pero útil en build)
-RUN python --version && pip --version
 
 # Volver al usuario jenkins (seguridad)
 USER jenkins
 
-# Variables de entorno recomendadas (puedes sobreescribirlas al hacer docker run)
+# Verificar instalaciones en tiempo de build
+RUN java -version && sonar-scanner --version
+
+# Variables de entorno
 # NGROK_AUTHTOKEN es obligatorio → pásalo como -e al correr el contenedor
 ENV NGROK_AUTHTOKEN=""
 ENV NGROK_REGION="eu"
 ENV JENKINS_OPTS="--httpPort=8080"
 
-
-
-# Usamos un entrypoint custom en lugar del oficial
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

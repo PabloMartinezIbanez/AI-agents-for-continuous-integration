@@ -1,27 +1,74 @@
 services:
+
+  # ── Jenkins + ngrok ──────────────────────────────────────────────────────────
   jenkins:
     build:
       context: .
-      dockerfile: Dockerfile # si sigues usando tu Dockerfile anterior
-    # Alternativa: si no quieres construir imagen custom, comenta build y usa image directamente:
-    # image: jenkins/jenkins:2.541.1-jdk25
+      dockerfile: Dockerfile
     container_name: jenkins-ngrok
     image: jenkins-ngrok:2.541.1-jdk25
     restart: on-failure
     ports:
-      - "8080:8080" # host:5678 → contenedor:8080 (Jenkins UI)
-      - "5678:5678"
-      - "50000:50000" # puerto para agents JNLP (opcional pero recomendado)
+      - "8080:8080" # Jenkins UI
+      - "5678:5678" # ngrok tunnel
+      - "50000:50000" # Agentes JNLP
     volumes:
       - jenkins_home:/var/jenkins_home
     env_file:
-      - .env # ← carga NGROK_AUTHTOKEN y otras vars desde aquí
+      - .env # NGROK_AUTHTOKEN y otras vars sensibles
     environment:
-      # Puedes sobreescribir o añadir valores por defecto aquí si quieres
       JENKINS_OPTS: "--httpPort=8080"
-      NGROK_REGION: "eu" # opcional: descomenta y pon tu región preferida
+      NGROK_REGION: "eu"
+      # URL interna para que las pipelines apunten a SonarQube por nombre de servicio
+      SONAR_HOST_URL: "http://sonarqube:9000"
+    networks:
+      - sonarnet # ← necesario para que Jenkins llegue a SonarQube
     entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
+    depends_on:
+      - sonarqube
+
+  # ── SonarQube ────────────────────────────────────────────────────────────────
+  sonarqube:
+    container_name: sonarqube
+    image: sonarqube:26.3.0.120487-community
+    ports:
+      - "9000:9000"
+    networks:
+      - sonarnet
+    environment:
+      - SONAR_JDBC_URL=jdbc:postgresql://db:5432/sonar # ← corregido (era postgresq1 con "1")
+      - SONAR_JDBC_USERNAME=${SONARQUBE_JDBC_USERNAME}
+      - SONAR_JDBC_PASSWORD=${SONARQUBE_JDBC_PASSWORD}
+    volumes:
+      - sonarqube_conf:/opt/sonarqube/conf
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_bundled-plugins:/opt/sonarqube/lib/bundled-plugins
+    depends_on:
+      - db
+
+  # ── PostgreSQL (backend de SonarQube) ────────────────────────────────────────
+  db:
+    container_name: postgresql
+    image: postgres:15.17
+    networks:
+      - sonarnet
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=sonar
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+
+networks:
+  sonarnet:
+    driver: bridge
 
 volumes:
   jenkins_home:
     name: jenkins_home_data
+  sonarqube_conf:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_bundled-plugins:
+  postgresql_data:
