@@ -59,14 +59,15 @@ pipeline {
                 expression { env.QUALITY_GATE_STATUS == 'OK' }
             }
             steps {
-                sh 'python3 test.py > py_test_results.txt'
-                sh 'npm test > js_test_results.txt'
+                sh 'python3 -m pytest test.py --junitxml=py_test_results.xml'
+                sh 'npm test'
             }
         }
     }
     post {
         always {
-            archiveArtifacts artifacts: 'sonarqube-issues.json', fingerprint: true
+            archiveArtifacts artifacts: 'py_test_results.xml, js_test_results.json', fingerprint: true
+            junit 'py_test_results.xml'
         }
     }
 }

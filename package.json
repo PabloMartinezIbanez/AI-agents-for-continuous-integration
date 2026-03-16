@@ -6,6 +6,8 @@
   "main": "prueba.js",
   "dependencies": {
   },
+  "devDependencies": {
+  },
   "scripts": {
     "test": "node test.js"
   },
