@@ -42,18 +42,6 @@ pipeline {
                 }
             }
         }
-        stage('Install Python Dependencies') {
-            when {
-                expression { env.QUALITY_GATE_STATUS != 'OK' }
-            }
-            steps {
-                sh '''
-                    python3 -m venv .project-venv > /dev/null 2>&1
-                    . .project-venv/bin/activate > /dev/null 2>&1
-                    pip install -r ${WORKSPACE}/requirements.txt > /dev/null 2>&1
-                '''
-            }
-        }
         stage('Export SonarQube Issues') {
             steps {
                 ExportSonarQubeIssues()
@@ -65,6 +53,18 @@ pipeline {
             }
             steps {
                 echo "Quality Gate failed with status: ${env.QUALITY_GATE_STATUS}. Attempting to fix issues with AI..."
+            }
+        }
+        stage('Install Python Dependencies') {
+            when {
+                expression { env.QUALITY_GATE_STATUS != 'OK' }
+            }
+            steps {
+                sh '''
+                    python3 -m venv .project-venv > /dev/null 2>&1
+                    . .project-venv/bin/activate > /dev/null 2>&1
+                    pip install -r ${WORKSPACE}/requirements.txt > /dev/null 2>&1
+                '''
             }
         }
         stage('Run Tests') {
