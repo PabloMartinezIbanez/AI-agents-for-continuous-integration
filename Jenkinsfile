@@ -60,7 +60,7 @@ pipeline {
                 expression { env.QUALITY_GATE_STATUS != 'OK' }
             }
             steps {
-                sh 'python3 -m pip install -r requirements.txt > /dev/null 2>&1'
+                sh 'python3 -m pip install -r requirements.txt'
             }
         }
         stage('Run Tests') {
