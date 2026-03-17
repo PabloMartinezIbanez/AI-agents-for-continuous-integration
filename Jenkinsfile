@@ -60,6 +60,7 @@ pipeline {
                 expression { env.QUALITY_GATE_STATUS != 'OK' }
             }
             steps {
+                sh 'cat ${WORKSPACE}/requirements.txt'
                 sh 'pip install --break-system-packages -r ${WORKSPACE}/requirements.txt'
             }
         }
