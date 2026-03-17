@@ -42,6 +42,14 @@ pipeline {
                 }
             }
         }
+        stage('Install Python Dependencies') {
+            when {
+                expression { env.QUALITY_GATE_STATUS != 'OK' }
+            }
+            steps {
+                sh 'pip install -r ${WORKSPACE}/requirements.txt'
+            }
+        }
         stage('Export SonarQube Issues') {
             steps {
                 ExportSonarQubeIssues()
@@ -55,21 +63,12 @@ pipeline {
                 echo "Quality Gate failed with status: ${env.QUALITY_GATE_STATUS}. Attempting to fix issues with AI..."
             }
         }
-        stage('Install Python Dependencies') {
-            when {
-                expression { env.QUALITY_GATE_STATUS != 'OK' }
-            }
-            steps {
-                sh 'cat ${WORKSPACE}/requirements.txt'
-                sh 'pip install --break-system-packages -r ${WORKSPACE}/requirements.txt'
-            }
-        }
         stage('Run Tests') {
             when {
                 expression { env.QUALITY_GATE_STATUS != 'OK' }
             }
             steps {
-                sh 'python3 -m pytest ${WORKSPACE}/test.py --json-report --json-report-file=${WORKSPACE}/assets/python_test_results.json'
+                sh 'python3 -m pytest test.py --json-report --json-report-file=assets/python_test_results.json'
                 sh 'npm run test:ci'
             }
         }
