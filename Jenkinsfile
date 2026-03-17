@@ -48,9 +48,9 @@ pipeline {
             }
             steps {
                 sh '''
-                    python3 -m venv venv
-                    . venv/bin/activate
-                    pip install -r requirements.txt
+                    python3 -m venv .project-venv > /dev/null 2>&1
+                    . .project-venv/bin/activate
+                    pip install -r ${WORKSPACE}/requirements.txt > /dev/null 2>&1
                 '''
             }
         }
@@ -72,8 +72,8 @@ pipeline {
                 expression { env.QUALITY_GATE_STATUS != 'OK' }
             }
             steps {
-                sh 'python3 -m pytest test.py --json-report --json-report-file=assets/python_test_results.json'
-                sh 'npm run test:ci'
+                sh '.project-venv/bin/pytest ${WORKSPACE}/test.py --json-report --json-report-file=${WORKSPACE}/assets/python_test_results.json > /dev/null 2>&1'
+                sh 'npm run test:ci > /dev/null 2>&1'
             }
         }
     }
