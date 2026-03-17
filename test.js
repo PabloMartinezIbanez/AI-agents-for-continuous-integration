@@ -21,3 +21,7 @@ test('resta con resultado negativo', () => {
 test('Test resta fallo', () => {
     assert.equal(resta(-5, -2), 0);
 });
+
+test('Test suma fallo', () => {
+    assert.equal(suma(-5, -2), -10);
+});

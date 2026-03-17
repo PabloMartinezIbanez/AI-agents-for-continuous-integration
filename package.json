@@ -9,7 +9,8 @@
   "devDependencies": {
   },
   "scripts": {
-    "test": "node --test test.js"
+    "test": "node --test test.js",
+    "test:ci": "node --test --test-reporter=junit --test-reporter-destination=assets/js_test_results.xml test.js"
   },
   "repository": {
     "type": "git",

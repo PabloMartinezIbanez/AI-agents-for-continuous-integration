@@ -68,13 +68,13 @@ pipeline {
             }
             steps {
                 sh 'python3 -m pytest test.py --json-report --json-report-file=assets/python_test_results.json'
-                sh 'npm test'
+                sh 'npm run test:ci'
             }
         }
     }
     post {
         always {
-            archiveArtifacts artifacts: 'assets/python_test_results.json', fingerprint: true
+            archiveArtifacts artifacts: 'assets/python_test_results.json, assets/js_test_results.xml', fingerprint: true
         }
     }
 }
