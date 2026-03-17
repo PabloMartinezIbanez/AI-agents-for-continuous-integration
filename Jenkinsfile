@@ -60,7 +60,7 @@ pipeline {
                 expression { env.QUALITY_GATE_STATUS != 'OK' }
             }
             steps {
-                sh 'python3 -m venv .venv > /dev/null 2>&1 && .venv/bin/pip install -r requirements.txt > /dev/null 2>&1'
+                sh 'pip install --break-system-packages -r requirements.txt'
             }
         }
         stage('Run Tests') {
@@ -68,7 +68,7 @@ pipeline {
                 expression { env.QUALITY_GATE_STATUS != 'OK' }
             }
             steps {
-                sh '.venv/bin/pytest test.py --json-report --json-report-file=assets/python_test_results.json'
+                sh 'python3 -m pytest test.py --json-report --json-report-file=assets/python_test_results.json'
                 sh 'npm run test:ci'
             }
         }
