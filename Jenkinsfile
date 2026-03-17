@@ -54,20 +54,27 @@ pipeline {
                 echo "Quality Gate failed with status: ${env.QUALITY_GATE_STATUS}. Attempting to fix issues with AI..."
             }
         }
+        stage('Install Python Dependencies') {
+            when {
+                expression { env.QUALITY_GATE_STATUS == 'OK' }
+            }
+            steps {
+                sh 'python3 -m pip install -r requirements.txt'
+            }
+        }
         stage('Run Tests') {
             when {
                 expression { env.QUALITY_GATE_STATUS == 'OK' }
             }
             steps {
-                sh 'python3 -m pytest test.py --junitxml=py_test_results.xml'
+                sh 'python3 -m pytest test.py --json-report --json-report-file=assets/python_test_results.json'
                 sh 'npm test'
             }
         }
     }
     post {
         always {
-            archiveArtifacts artifacts: 'py_test_results.xml, js_test_results.json', fingerprint: true
-            junit 'py_test_results.xml'
+            archiveArtifacts artifacts: 'assets/python_test_results.json', fingerprint: true
         }
     }
 }
