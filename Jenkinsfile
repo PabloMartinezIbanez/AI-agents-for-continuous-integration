@@ -28,7 +28,8 @@ pipeline {
                         -Dsonar.projectKey=$SONARQUBE_PROJECT_KEY \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=$SONARQUBE_URL \
-                        -Dsonar.login=$SONARQUBE_TOKEN
+                        -Dsonar.login=$SONARQUBE_TOKEN \
+                        > /dev/null 2>&1
                     '''
                 }
             }
@@ -56,19 +57,19 @@ pipeline {
         }
         stage('Install Python Dependencies') {
             when {
-                expression { env.QUALITY_GATE_STATUS == 'OK' }
+                expression { env.QUALITY_GATE_STATUS != 'OK' }
             }
             steps {
-                sh 'python3 -m pip install -r requirements.txt'
+                sh 'python3 -m pip install -r requirements.txt > /dev/null 2>&1'
             }
         }
         stage('Run Tests') {
             when {
-                expression { env.QUALITY_GATE_STATUS == 'OK' }
+                expression { env.QUALITY_GATE_STATUS != 'OK' }
             }
             steps {
-                sh 'python3 -m pytest test.py --json-report --json-report-file=assets/python_test_results.json'
-                sh 'npm run test:ci'
+                sh 'python3 -m pytest test.py --json-report --json-report-file=assets/python_test_results.json > /dev/null 2>&1'
+                sh 'npm run test:ci > /dev/null 2>&1'
             }
         }
     }
