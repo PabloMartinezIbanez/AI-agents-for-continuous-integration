@@ -60,7 +60,7 @@ pipeline {
                 expression { env.QUALITY_GATE_STATUS != 'OK' }
             }
             steps {
-                sh 'pip install --break-system-packages -r requirements.txt'
+                sh 'pip install --break-system-packages -r ${WORKSPACE}/requirements.txt'
             }
         }
         stage('Run Tests') {
@@ -68,7 +68,7 @@ pipeline {
                 expression { env.QUALITY_GATE_STATUS != 'OK' }
             }
             steps {
-                sh 'python3 -m pytest test.py --json-report --json-report-file=assets/python_test_results.json'
+                sh 'python3 -m pytest ${WORKSPACE}/test.py --json-report --json-report-file=${WORKSPACE}/assets/python_test_results.json'
                 sh 'npm run test:ci'
             }
         }
