@@ -68,8 +68,8 @@ pipeline {
                 expression { env.QUALITY_GATE_STATUS != 'OK' }
             }
             steps {
-                sh '.venv/bin/pytest test.py --json-report --json-report-file=assets/python_test_results.json > /dev/null 2>&1'
-                sh 'npm run test:ci > /dev/null 2>&1'
+                sh '.venv/bin/pytest test.py --json-report --json-report-file=assets/python_test_results.json'
+                sh 'npm run test:ci'
             }
         }
     }
