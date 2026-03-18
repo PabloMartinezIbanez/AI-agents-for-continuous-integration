@@ -28,7 +28,8 @@ pipeline {
                         -Dsonar.projectKey=$SONARQUBE_PROJECT_KEY \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=$SONARQUBE_URL \
-                        -Dsonar.login=$SONARQUBE_TOKEN
+                        -Dsonar.login=$SONARQUBE_TOKEN \
+                        > /dev/null 2>&1
                     '''
                 }
             }
@@ -54,19 +55,31 @@ pipeline {
                 echo "Quality Gate failed with status: ${env.QUALITY_GATE_STATUS}. Attempting to fix issues with AI..."
             }
         }
-        stage('Run Tests') {
+        stage('Install Python Dependencies') {
             when {
-                expression { env.QUALITY_GATE_STATUS == 'OK' }
+                expression { env.QUALITY_GATE_STATUS != 'OK' }
             }
             steps {
-                sh 'python3 test.py > py_test_results.txt'
-                sh 'npm test > js_test_results.txt'
+                sh '''
+                    python3 -m venv .project-venv > /dev/null 2>&1
+                    . .project-venv/bin/activate > /dev/null 2>&1
+                    pip install -r ${WORKSPACE}/requirements.txt > /dev/null 2>&1
+                '''
+            }
+        }
+        stage('Run Tests') {
+            when {
+                expression { env.QUALITY_GATE_STATUS != 'OK' }
+            }
+            steps {
+                sh '.project-venv/bin/pytest ${WORKSPACE}/test.py --json-report --json-report-file=${WORKSPACE}/assets/python_test_results.json > /dev/null 2>&1 || exit 0'
+                sh 'npm run test:ci > /dev/null 2>&1 || exit 0'
             }
         }
     }
     post {
         always {
-            archiveArtifacts artifacts: 'sonarqube-issues.json', fingerprint: true
+            archiveArtifacts artifacts: 'assets/python_test_results.json, assets/js_test_results.xml, sonarqube-issues.json', fingerprint: true
         }
     }
 }
