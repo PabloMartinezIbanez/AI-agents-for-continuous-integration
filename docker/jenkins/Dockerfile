@@ -47,6 +47,10 @@ RUN sed -i 's|#use_embedded_jre=true|use_embedded_jre=false|' \
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+# Git config global para commits automáticos de la IA
+RUN git config --global user.name "Jenkins AI Bot" && \
+    git config --global user.email "jenkins-ai@noreply.github.com"
+
 # Volver al usuario jenkins (seguridad)
 USER jenkins
 
