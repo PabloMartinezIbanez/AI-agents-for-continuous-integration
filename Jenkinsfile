@@ -16,6 +16,8 @@ pipeline {
         SONARQUBE_TOKEN = credentials('SONARQUBE_TOKEN')
         SONARQUBE_URL = 'http://sonarqube:9000'
         SONARQUBE_PROJECT_KEY = 'AI-agents-for-continuous-integration'
+        OPENAI_API_KEY = credentials('Gemini_Api_token')
+        GITHUB_PAT = credentials('Github_AI_Auth')
         // Carpeta donde se centralizan los reportes que leerá la IA
         AI_REPORTS_DIR = 'reports_for_IA'
     }
