@@ -1,4 +1,4 @@
-import { createInterface } from 'node:readline';
+import { createInterface } from 'node:readline/promises';
 import process from 'node:process';
 
 export function suma(a, b) {
@@ -17,12 +17,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
         output: process.stdout
     });
 
-    const preguntar = (texto) => {
-        return new Promise((resolve) => {
-            rl.question(texto, (respuesta) => {
-                resolve(Number(respuesta));
-            });
-        });
+    const preguntar = async (texto) => {
+        const respuesta = await rl.question(texto);
+        return Number(respuesta);
     };
 
     const num1 = await preguntar("Introduce el primer número: ");
