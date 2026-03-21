@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { suma, resta } from './prueba.js';
+import { suma, resta } from '../../src/calculator/prueba.js';
 
 test('suma dos numeros positivos', () => {
     assert.equal(suma(2, 3), 5);
