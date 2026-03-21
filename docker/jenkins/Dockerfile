@@ -1,8 +1,8 @@
 # Usamos la versión exacta que pides
 FROM jenkins/jenkins:2.541.1-jdk25
 
-LABEL maintainer="[EMAIL_ADDRESS]"
-LABEL description="Jenkins con ngrok integrado para exposición automática vía tunnel y SonarScanner CLI"
+LABEL maintainer="[EMAIL_ADDRESS]" \
+      description="Jenkins con ngrok integrado para exposición automática vía tunnel y SonarScanner CLI"
 
 # Usuario root temporal para instalar dependencias
 USER root
@@ -55,8 +55,8 @@ USER jenkins
 
 # Variables de entorno
 # NGROK_AUTHTOKEN es obligatorio → pásalo como -e al correr el contenedor
-ENV NGROK_AUTHTOKEN=""
-ENV NGROK_REGION="eu"
-ENV JENKINS_OPTS="--httpPort=8080"
+ENV NGROK_AUTHTOKEN="" \
+    NGROK_REGION="eu" \
+    JENKINS_OPTS="--httpPort=8080"
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
