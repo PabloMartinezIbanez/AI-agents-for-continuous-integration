@@ -1,4 +1,5 @@
 import { createInterface } from 'node:readline';
+import process from 'node:process';
 
 export function suma(a, b) {
     return a + b;

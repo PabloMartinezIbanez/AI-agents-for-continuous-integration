@@ -17,6 +17,7 @@ ENV SONAR_SCANNER_OPTS="-Djava.security.egd=file:/dev/./urandom"
 # Instalar herramientas necesarias
 # ── ngrok ────────────────────────────────────────────────────────────────────
 # ── SonarScanner CLI ─────────────────────────────────────────────────────────
+# Git config global para commits automáticos de la IA y verificar instalaciones en tiempo de build
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
@@ -40,18 +41,16 @@ RUN apt-get update && \
     ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner && \
     rm /tmp/sonar-scanner.zip && \
     sed -i 's|#use_embedded_jre=true|use_embedded_jre=false|' \
-    /opt/sonar-scanner/conf/sonar-scanner.properties
+    /opt/sonar-scanner/conf/sonar-scanner.properties && \
+    git config --system user.name "Jenkins AI Bot" && \
+    git config --system user.email "jenkins-ai@noreply.github.com" && \
+    java -version && sonar-scanner --version
 
 # Entrypoint wrapper (Jenkins + ngrok)
 COPY --chmod=755 entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Volver al usuario jenkins (seguridad)
 USER jenkins
-
-# Git config global para commits automáticos de la IA y verificar instalaciones en tiempo de build
-RUN git config --global user.name "Jenkins AI Bot" && \
-    git config --global user.email "jenkins-ai@noreply.github.com" && \
-    java -version && sonar-scanner --version
 
 # Variables de entorno
 # NGROK_AUTHTOKEN es obligatorio → pásalo como -e al correr el contenedor
