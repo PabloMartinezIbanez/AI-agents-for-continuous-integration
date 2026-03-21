@@ -31,5 +31,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     console.log("Resultado de la resta:", resta(num1, num2));
 
     rl.close();
-    ;
 }
