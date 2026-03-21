@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <testsuites>
-	<testcase name="suma dos numeros positivos" time="0.000760" classname="test" file="/var/jenkins_home/workspace/50-20260321161809-20260321162219/test.js"/>
-	<testcase name="suma con numeros negativos" time="0.000125" classname="test" file="/var/jenkins_home/workspace/50-20260321161809-20260321162219/test.js"/>
-	<testcase name="resta dos numeros positivos" time="0.000113" classname="test" file="/var/jenkins_home/workspace/50-20260321161809-20260321162219/test.js"/>
-	<testcase name="resta con resultado negativo" time="0.000159" classname="test" file="/var/jenkins_home/workspace/50-20260321161809-20260321162219/test.js"/>
-	<testcase name="Test resta fallo" time="0.000780" classname="test" file="/var/jenkins_home/workspace/50-20260321161809-20260321162219/test.js" failure="Expected values to be strictly equal:&#10;&#10;-3 !== 0&#10;">
+	<testcase name="suma dos numeros positivos" time="0.000786" classname="test" file="/var/jenkins_home/workspace/09-20260321162219-20260321162630/test.js"/>
+	<testcase name="suma con numeros negativos" time="0.000140" classname="test" file="/var/jenkins_home/workspace/09-20260321162219-20260321162630/test.js"/>
+	<testcase name="resta dos numeros positivos" time="0.000121" classname="test" file="/var/jenkins_home/workspace/09-20260321162219-20260321162630/test.js"/>
+	<testcase name="resta con resultado negativo" time="0.000129" classname="test" file="/var/jenkins_home/workspace/09-20260321162219-20260321162630/test.js"/>
+	<testcase name="Test resta fallo" time="0.000813" classname="test" file="/var/jenkins_home/workspace/09-20260321162219-20260321162630/test.js" failure="Expected values to be strictly equal:&#10;&#10;-3 !== 0&#10;">
 		<failure type="testCodeFailure" message="Expected values to be strictly equal:&#10;&#10;-3 !== 0">
 [Error [ERR_TEST_FAILURE]: Expected values to be strictly equal:
 
@@ -16,7 +16,7 @@
   
   -3 !== 0
   
-      at TestContext.&lt;anonymous> (file:///var/jenkins_home/workspace/50-20260321161809-20260321162219/test.js:22:12)
+      at TestContext.&lt;anonymous> (file:///var/jenkins_home/workspace/09-20260321162219-20260321162630/test.js:22:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1118:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
@@ -33,7 +33,7 @@
 }
 		</failure>
 	</testcase>
-	<testcase name="Test suma fallo" time="0.000221" classname="test" file="/var/jenkins_home/workspace/50-20260321161809-20260321162219/test.js" failure="Expected values to be strictly equal:&#10;&#10;-7 !== -10&#10;">
+	<testcase name="Test suma fallo" time="0.000251" classname="test" file="/var/jenkins_home/workspace/09-20260321162219-20260321162630/test.js" failure="Expected values to be strictly equal:&#10;&#10;-7 !== -10&#10;">
 		<failure type="testCodeFailure" message="Expected values to be strictly equal:&#10;&#10;-7 !== -10">
 [Error [ERR_TEST_FAILURE]: Expected values to be strictly equal:
 
@@ -45,7 +45,7 @@
   
   -7 !== -10
   
-      at TestContext.&lt;anonymous> (file:///var/jenkins_home/workspace/50-20260321161809-20260321162219/test.js:26:12)
+      at TestContext.&lt;anonymous> (file:///var/jenkins_home/workspace/09-20260321162219-20260321162630/test.js:26:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1118:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
@@ -69,5 +69,5 @@
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
 	<!-- to-do 0 -->
-	<!-- duration_ms 68.268391 -->
+	<!-- duration_ms 74.809723 -->
 </testsuites>
