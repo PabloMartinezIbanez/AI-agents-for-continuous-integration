@@ -16,8 +16,8 @@ pipeline {
         SONARQUBE_TOKEN = credentials('SONARQUBE_TOKEN')
         SONARQUBE_URL = 'http://sonarqube:9000'
         SONARQUBE_PROJECT_KEY = 'AI-agents-for-continuous-integration'
-        OPENAI_API_KEY = credentials('Gemini_Api_token')
-        GITHUB_PAT = credentials('Github_AI_Auth')
+        LLM_API_KEY_VALUE = credentials('Gemini_Api_token')
+        GITHUB_TOKEN = credentials('Github_AI_Auth')
         // Carpeta donde se centralizan los reportes que leerá la IA
         AI_REPORTS_DIR = 'reports_for_IA'
     }
@@ -92,10 +92,11 @@ pipeline {
                 echo "Quality Gate failed with status: ${env.QUALITY_GATE_STATUS}. Attempting to fix issues with AI..."
                 FixWithAI(
                     reportsDir: env.AI_REPORTS_DIR,
-                    llmModel: 'gpt-4o',
-                    llmCredentialId: 'OPENAI_API_KEY',
-                    githubCredentialId: 'GITHUB_PAT',
-                    repoSlug: 'PabloMartinezIbanez/AI-agents-for-continuous-integration'
+                    llmModel: 'gemini-3.1-pro-preview',
+                    llmCredentialId: 'LLM_API_KEY_VALUE',
+                    githubCredentialId: 'GITHUB_TOKEN',
+                    repoSlug: 'PabloMartinezIbanez/AI-agents-for-continuous-integration',
+                    dryRun: true
                 )
             }
         }
