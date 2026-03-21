@@ -96,7 +96,7 @@ pipeline {
                     llmCredentialId: 'LLM_API_KEY_VALUE',
                     githubCredentialId: 'Github_AI_Auth',
                     repoSlug: 'PabloMartinezIbanez/AI-agents-for-continuous-integration',
-                    dryRun: true
+                    dryRun: false
                 )
             }
         }
