@@ -3,7 +3,6 @@ import process from 'node:process';
 
 export function suma(a, b) {
     return a + b;
-
 }
 
 export function resta(a, b) {
