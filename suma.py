@@ -17,13 +17,11 @@ def main():
         
         print(f"\nResultado: {numero1} + {numero2} = {resultado}")
         
-        input(EXIT_MESSAGE)
-        
     except ValueError:
         print("Error: Por favor ingresa números válidos")
-        input(EXIT_MESSAGE)
     except Exception as e:
         print(f"Error inesperado: {e}")
+    finally:
         input(EXIT_MESSAGE)
 
 def suma(a, b):
