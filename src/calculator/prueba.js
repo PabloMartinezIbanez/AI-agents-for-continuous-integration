@@ -1,4 +1,5 @@
 import { createInterface } from 'node:readline';
+import process from 'node:process';
 
 export function suma(a, b) {
     return a + b;
@@ -31,5 +32,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     console.log("Resultado de la resta:", resta(num1, num2));
 
     rl.close();
-    ;
 }
