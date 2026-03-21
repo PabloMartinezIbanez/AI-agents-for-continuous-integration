@@ -64,7 +64,7 @@ pipeline {
         }
         stage('Install Python Dependencies') {
             when {
-                expression { env.QUALITY_GATE_STATUS != 'OK' }
+                expression { env.QUALITY_GATE_STATUS == 'OK' }
             }
             steps {
                 sh '''
@@ -76,7 +76,7 @@ pipeline {
         }
         stage('Run Tests') {
             when {
-                expression { env.QUALITY_GATE_STATUS != 'OK' }
+                expression { env.QUALITY_GATE_STATUS == 'OK' }
             }
             steps {
                 sh ".project-venv/bin/pytest ${WORKSPACE}/test.py --json-report --json-report-file=${WORKSPACE}/${AI_REPORTS_DIR}/python_test_results.json || exit 0"
@@ -86,10 +86,10 @@ pipeline {
 
         stage('Fix Issues with AI') {
             when {
-                expression { env.QUALITY_GATE_STATUS != 'OK' }
+                expression { env.QUALITY_GATE_STATUS == 'OK' }
             }
             steps {
-                echo "Quality Gate failed with status: ${env.QUALITY_GATE_STATUS}. Attempting to fix issues with AI..."
+                echo "Quality Gate passed with status: ${env.QUALITY_GATE_STATUS}. Attempting to fix issues with AI..."
                 FixWithAI(
                     reportsDir: env.AI_REPORTS_DIR,
                     llmModel: 'gemini-3.1-pro-preview',
