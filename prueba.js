@@ -17,13 +17,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
         output: process.stdout
     });
 
-    const preguntar = async (texto) => {
-        const respuesta = await rl.question(texto);
-        return Number(respuesta);
-    };
-
-    const num1 = await preguntar("Introduce el primer número: ");
-    const num2 = await preguntar("Introduce el segundo número: ");
+    const num1 = Number(await rl.question("Introduce el primer número: "));
+    const num2 = Number(await rl.question("Introduce el segundo número: "));
 
     console.log("Resultado de la suma:", suma(num1, num2));
     console.log("Resultado de la resta:", resta(num1, num2));
