@@ -59,7 +59,7 @@ pipeline {
         }
         stage('Export SonarQube Issues') {
             steps {
-                ExportSonarQubeIssues()
+                ExportSonarQubeIssues(outputDir: env.AI_REPORTS_DIR)
             }
         }
         stage('Install Python Dependencies') {
@@ -79,8 +79,8 @@ pipeline {
                 expression { env.QUALITY_GATE_STATUS != 'OK' }
             }
             steps {
-                sh ".project-venv/bin/pytest ${WORKSPACE}/test.py --json-report --json-report-file=${WORKSPACE}/assets/${AI_REPORTS_DIR}/python_test_results.json || exit 0"
-                sh "node --test --test-reporter=junit --test-reporter-destination=${AI_REPORTS_DIR}/js_test_results.xml test.js || exit 0"
+                sh ".project-venv/bin/pytest ${WORKSPACE}/test.py --json-report --json-report-file=${WORKSPACE}/${AI_REPORTS_DIR}/python_test_results.json || exit 0"
+                sh "node --test --test-reporter=junit --test-reporter-destination=${WORKSPACE}/${AI_REPORTS_DIR}/js_test_results.xml test.js || exit 0"
             }
         }
 
