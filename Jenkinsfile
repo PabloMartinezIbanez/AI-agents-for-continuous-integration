@@ -39,12 +39,13 @@ pipeline {
             steps {
                 withSonarQubeEnv(installationName: 'sonarQube_server') {
                     sh '''
+                        echo "Scanning with project key: ${SONARQUBE_PROJECT_KEY}:${BRANCH_NAME}"
+                        
                         sonar-scanner \
-                        -Dsonar.projectKey=$SONARQUBE_PROJECT_KEY \
+                        -Dsonar.projectKey="${SONARQUBE_PROJECT_KEY}:${BRANCH_NAME}" \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=$SONARQUBE_URL \
-                        -Dsonar.login=$SONARQUBE_TOKEN \
-                        > /dev/null 2>&1
+                        -Dsonar.login=$SONARQUBE_TOKEN
                     '''
                 }
             }
