@@ -22,6 +22,7 @@ pipeline {
 
         stage('Scan') {
             steps {
+                sh 'echo "Branch name: $BRANCH_NAME"'
                 withSonarQubeEnv(installationName: 'sonarQube_server') {
                     sh '''
                         sonar-scanner \
