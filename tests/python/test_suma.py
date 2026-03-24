@@ -1,4 +1,9 @@
+from pathlib import Path
+import sys
+
 import pytest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'src' / 'calculator'))
 import suma
 
 def test_suma():

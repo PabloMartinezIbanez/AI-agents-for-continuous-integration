@@ -16,9 +16,24 @@ pipeline {
         SONARQUBE_TOKEN = credentials('SONARQUBE_TOKEN')
         SONARQUBE_URL = 'http://sonarqube:9000'
         SONARQUBE_PROJECT_KEY = 'AI-agents-for-continuous-integration'
+        LLM_API_KEY_VALUE = credentials('LLM_API_KEY_VALUE')
+        Github_AI_Auth = credentials('Github_AI_Auth')
+        // Carpeta donde se centralizan los reportes que leerá la IA
+        AI_REPORTS_DIR = 'reports_for_IA'
     }
 
     stages {
+
+        stage('Prepare AI Directory') {
+            when {
+                expression { env.QUALITY_GATE_STATUS != 'OK' }
+            }
+            steps {
+                sh '''
+                    mkdir -p "$AI_REPORTS_DIR"
+                '''
+            }
+        }
 
         stage('Scan') {
             steps {
@@ -44,42 +59,51 @@ pipeline {
         }
         stage('Export SonarQube Issues') {
             steps {
-                ExportSonarQubeIssues()
-            }
-        }
-        stage('Fix Issues with AI') {
-            when {
-                expression { env.QUALITY_GATE_STATUS != 'OK' }
-            }
-            steps {
-                echo "Quality Gate failed with status: ${env.QUALITY_GATE_STATUS}. Attempting to fix issues with AI..."
+                ExportSonarQubeIssues(outputDir: env.AI_REPORTS_DIR)
             }
         }
         stage('Install Python Dependencies') {
             when {
-                expression { env.QUALITY_GATE_STATUS != 'OK' }
+                expression { env.QUALITY_GATE_STATUS == 'OK' }
             }
             steps {
                 sh '''
                     python3 -m venv .project-venv > /dev/null 2>&1
                     . .project-venv/bin/activate > /dev/null 2>&1
-                    pip install -r ${WORKSPACE}/requirements.txt > /dev/null 2>&1
+                    pip install -r ${WORKSPACE}/requirements/python_requirements.txt > /dev/null 2>&1
                 '''
             }
         }
         stage('Run Tests') {
             when {
-                expression { env.QUALITY_GATE_STATUS != 'OK' }
+                expression { env.QUALITY_GATE_STATUS == 'OK' }
             }
             steps {
-                sh '.project-venv/bin/pytest ${WORKSPACE}/test.py --json-report --json-report-file=${WORKSPACE}/assets/python_test_results.json > /dev/null 2>&1 || exit 0'
-                sh 'npm run test:ci > /dev/null 2>&1 || exit 0'
+                sh "PYTHONPATH=${WORKSPACE}/src/calculator .project-venv/bin/pytest ${WORKSPACE}/tests/python/test_suma.py --json-report --json-report-file=${WORKSPACE}/${AI_REPORTS_DIR}/python_test_results.json || exit 0"
+                sh "node --test --test-reporter=junit --test-reporter-destination=${WORKSPACE}/${AI_REPORTS_DIR}/js_test_results.xml tests/javascript/test_prueba.js || exit 0"
+            }
+        }
+
+        stage('Fix Issues with AI') {
+            when {
+                expression { env.QUALITY_GATE_STATUS == 'OK' }
+            }
+            steps {
+                echo "Quality Gate passed with status: ${env.QUALITY_GATE_STATUS}. Attempting to fix issues with AI..."
+                FixWithAI(
+                    reportsDir: env.AI_REPORTS_DIR,
+                    llmModel: 'gemini-3.1-pro-preview',
+                    llmCredentialId: 'LLM_API_KEY_VALUE',
+                    githubCredentialId: 'Github_AI_Auth',
+                    repoSlug: 'PabloMartinezIbanez/AI-agents-for-continuous-integration',
+                    dryRun: false
+                )
             }
         }
     }
     post {
         always {
-            archiveArtifacts artifacts: 'assets/python_test_results.json, assets/js_test_results.xml, sonarqube-issues.json', fingerprint: true
+            archiveArtifacts artifacts: "${env.AI_REPORTS_DIR}/*", fingerprint: true
         }
     }
 }
