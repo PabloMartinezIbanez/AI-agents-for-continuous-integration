@@ -30,8 +30,7 @@ pipeline {
                         -Dsonar.branch.name=$BRANCH_NAME \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=$SONARQUBE_URL \
-                        -Dsonar.login=$SONARQUBE_TOKEN \
-                        > /dev/null 2>&1
+                        -Dsonar.login=$SONARQUBE_TOKEN
                     '''
                 }
             }
