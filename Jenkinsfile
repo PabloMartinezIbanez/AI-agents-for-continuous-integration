@@ -1,7 +1,12 @@
 @Library('AI_agents_for_CI_shared_library') _
 
 pipeline {
-    agent any
+    agent {
+        node {
+            label 'linux'
+            customWorkspace "/var/jenkins_home/workspace/${env.JOB_NAME}/${env.BUILD_NUMBER}"
+        }
+    }
 
     tools {
         nodejs '25.6.1'
