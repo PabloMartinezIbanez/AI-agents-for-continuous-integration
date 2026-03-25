@@ -71,7 +71,7 @@ pipeline {
                         -Dsonar.projectKey="${SONARQUBE_EFFECTIVE_PROJECT_KEY}" \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=$SONARQUBE_URL \
-                        -Dsonar.token=$SONARQUBE_TOKEN \
+                        -Dsonar.login=$SONARQUBE_TOKEN \
                         -Dsonar.scanner.metadataFilePath="$WORKSPACE/report-task.txt"
                     '''
                 }
