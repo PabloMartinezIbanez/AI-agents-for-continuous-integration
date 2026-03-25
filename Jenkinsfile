@@ -47,6 +47,15 @@ pipeline {
                 '''
             }
         }
+        
+        stage('List Workspace Files') {
+            steps {
+                sh '''
+                    echo "Workspace path: $WORKSPACE"
+                    find "$WORKSPACE" -type f | sort
+                '''
+            }
+        }
 
         stage('Scan') {
             steps {
