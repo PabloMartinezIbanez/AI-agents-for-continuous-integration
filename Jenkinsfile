@@ -8,6 +8,10 @@ pipeline {
         }
     }
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     tools {
         nodejs '25.6.1'
     }
@@ -29,9 +33,16 @@ pipeline {
 
     stages {
 
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Prepare AI Directory') {
             steps {
                 sh '''
+                    rm -rf "$AI_REPORTS_DIR"
                     mkdir -p "$AI_REPORTS_DIR"
                 '''
             }
