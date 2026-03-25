@@ -25,9 +25,6 @@ pipeline {
     stages {
 
         stage('Prepare AI Directory') {
-            when {
-                expression { env.QUALITY_GATE_STATUS != 'OK' }
-            }
             steps {
                 sh '''
                     mkdir -p "$AI_REPORTS_DIR"
@@ -37,15 +34,20 @@ pipeline {
 
         stage('Scan') {
             steps {
+                script {
+                    def safeBranch = (env.BRANCH_NAME ?: 'manual').replaceAll(/[^A-Za-z0-9._:-]/, '_')
+                    env.SONARQUBE_PROJECT_KEY = "${env.SONARQUBE_PROJECT_KEY}:${safeBranch}"
+                }
                 withSonarQubeEnv(installationName: 'sonarQube_server') {
                     sh '''
-                        echo "Scanning with project key: ${SONARQUBE_PROJECT_KEY}:${BRANCH_NAME}"
+                        echo "Scanning with project key: ${SONARQUBE_PROJECT_KEY}"
                         
                         sonar-scanner \
-                        -Dsonar.projectKey="${SONARQUBE_PROJECT_KEY}:${BRANCH_NAME}" \
+                        -Dsonar.projectKey="${SONARQUBE_PROJECT_KEY}" \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=$SONARQUBE_URL \
-                        -Dsonar.login=$SONARQUBE_TOKEN  > /dev/null 2>&1
+                        -Dsonar.login=$SONARQUBE_TOKEN \
+                        -Dsonar.scanner.metadataFilePath="$WORKSPACE/report-task.txt"
                     '''
                 }
             }
@@ -105,6 +107,11 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: "${env.AI_REPORTS_DIR}/*", fingerprint: true
+            cleanWs(
+                cleanWhenSuccess: true,
+                cleanWhenFailure: false,
+                deleteDirs: true
+            )
         }
     }
 }
