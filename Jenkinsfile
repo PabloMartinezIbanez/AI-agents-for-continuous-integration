@@ -14,6 +14,7 @@ pipeline {
 
     tools {
         nodejs '25.6.1'
+        dockerTool 'Docker-v27.3.1'
     }
 
     triggers {
@@ -29,6 +30,7 @@ pipeline {
         Github_AI_Auth = credentials('Github_AI_Auth')
         // Carpeta donde se centralizan los reportes que leerá la IA
         AI_REPORTS_DIR = 'reports_for_IA'
+        DOCKER_HOST = 'tcp://host.docker.internal:2375'
     }
 
     stages {
