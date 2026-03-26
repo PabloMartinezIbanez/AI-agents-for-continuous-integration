@@ -33,11 +33,15 @@ RUN curl -sSL \
     unzip /tmp/sonar-scanner.zip -d /opt/ && \
     mv /opt/sonar-scanner-${SONAR_SCANNER_VERSION}-linux-x64 /opt/sonar-scanner && \
     ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner && \
-    rm /tmp/sonar-scanner.zip && \
-    sed -i 's|#use_embedded_jre=true|use_embedded_jre=false|' \
+    rm /tmp/sonar-scanner.zip
+
+# Apuntar el JRE del scanner al JDK que ya trae la imagen base
+# (evita que el scanner descargue su propio JRE embebido)
+ENV SONAR_SCANNER_OPTS="-Djava.security.egd=file:/dev/./urandom"
+RUN sed -i 's|#use_embedded_jre=true|use_embedded_jre=false|' \
     /opt/sonar-scanner/conf/sonar-scanner.properties
 
-# Entrypoint wrapper (Jenkins + ngrok)
+# Entrypoint wrapper (Jenkins + ngrok) y Git config
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh && \
     git config --global user.name "Jenkins AI Bot" && \
