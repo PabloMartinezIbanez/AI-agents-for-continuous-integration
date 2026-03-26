@@ -65,7 +65,8 @@ pipeline {
                         -Dsonar.sources=. \
                         -Dsonar.host.url=$SONARQUBE_URL \
                         -Dsonar.login=$SONARQUBE_TOKEN \
-                        -Dsonar.scanner.metadataFilePath="$WORKSPACE/report-task.txt"
+                        -Dsonar.scanner.metadataFilePath="$WORKSPACE/report-task.txt" \
+                         > /dev/null 2>&1
                     '''
                 }
             }
@@ -100,8 +101,8 @@ pipeline {
                 expression { env.QUALITY_GATE_STATUS == 'OK' }
             }
             steps {
-                sh "PYTHONPATH=\"$WORKSPACE/src/calculator\" .project-venv/bin/pytest \"$WORKSPACE/tests/python/test_suma.py\" --json-report --json-report-file=\"$WORKSPACE/$AI_REPORTS_DIR/python_test_results.json\" || exit 0"
-                sh "node --test --test-reporter=junit --test-reporter-destination=\"$WORKSPACE/$AI_REPORTS_DIR/js_test_results.xml\" tests/javascript/test_prueba.js || exit 0"
+                sh "PYTHONPATH=\"$WORKSPACE/src/calculator\" .project-venv/bin/pytest \"$WORKSPACE/tests/python/test_suma.py\" --json-report --json-report-file=\"$WORKSPACE/$AI_REPORTS_DIR/python_test_results.json\"  > /dev/null 2>&1 || exit 0"
+                sh "node --test --test-reporter=junit --test-reporter-destination=\"$WORKSPACE/$AI_REPORTS_DIR/js_test_results.xml\" tests/javascript/test_prueba.js > /dev/null 2>&1 || exit 0"
             }
         }
 
