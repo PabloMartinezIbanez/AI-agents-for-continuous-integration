@@ -110,7 +110,7 @@ pipeline {
                 echo "Quality Gate passed with status: ${env.QUALITY_GATE_STATUS}. Attempting to fix issues with AI..."
                 FixWithAI(
                     reportsDir: env.AI_REPORTS_DIR,
-                    llmModel: 'gemini-3.1-pro-preview',
+                    llmModel: 'gemini-3-flash', // 'gemini-3.1-pro-preview',
                     llmCredentialId: 'LLM_API_KEY_VALUE',
                     githubCredentialId: 'Github_AI_Auth',
                     repoSlug: 'PabloMartinezIbanez/AI-agents-for-continuous-integration',
