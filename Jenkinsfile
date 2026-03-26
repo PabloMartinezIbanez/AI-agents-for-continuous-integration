@@ -79,11 +79,7 @@ pipeline {
                 }
             }
         }
-        stage('Export SonarQube Issues') {
-            steps {
-                ExportSonarQubeIssues(outputDir: env.AI_REPORTS_DIR)
-            }
-        }
+
         stage('Install Python Dependencies') {
             when {
                 expression { env.QUALITY_GATE_STATUS == 'OK' }
