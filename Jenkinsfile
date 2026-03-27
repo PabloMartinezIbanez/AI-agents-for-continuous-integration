@@ -85,7 +85,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    pip3 install -r "$WORKSPACE/requirements/python_requirements.txt"
+                    python3 -m pip install --break-system-packages -r "$WORKSPACE/requirements/python_requirements.txt"
                 '''
             }
         }
@@ -94,7 +94,7 @@ pipeline {
                 expression { env.QUALITY_GATE_STATUS == 'OK' }
             }
             steps {
-                sh "PYTHONPATH=\"$WORKSPACE/src/calculator\" pytest \"$WORKSPACE/tests/python/test_suma.py\" --json-report --json-report-file=\"$WORKSPACE/$AI_REPORTS_DIR/python_test_results.json\"  > /dev/null 2>&1 || exit 0"
+                sh "PYTHONPATH=\"$WORKSPACE/src/calculator\" python3 -m pytest \"$WORKSPACE/tests/python/test_suma.py\" --json-report --json-report-file=\"$WORKSPACE/$AI_REPORTS_DIR/python_test_results.json\"  > /dev/null 2>&1 || exit 0"
                 sh "node --test --test-reporter=junit --test-reporter-destination=\"$WORKSPACE/$AI_REPORTS_DIR/js_test_results.xml\" tests/javascript/test_prueba.js > /dev/null 2>&1 || exit 0"
             }
         }
