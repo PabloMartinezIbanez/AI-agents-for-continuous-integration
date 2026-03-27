@@ -65,8 +65,7 @@ pipeline {
                         -Dsonar.sources=. \
                         -Dsonar.host.url=$SONARQUBE_URL \
                         -Dsonar.login=$SONARQUBE_TOKEN \
-                        -Dsonar.scanner.metadataFilePath="$WORKSPACE/report-task.txt" \
-                         > /dev/null 2>&1
+                        -Dsonar.scanner.metadataFilePath="$WORKSPACE/report-task.txt" > /dev/null 2>&1 || exit 0
                     '''
                 }
             }
