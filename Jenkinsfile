@@ -85,7 +85,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    pip3 install -r "$WORKSPACE/requirements/python_requirements.txt" > /dev/null 2>&1
+                    pip3 install -r "$WORKSPACE/requirements/python_requirements.txt"
                 '''
             }
         }
