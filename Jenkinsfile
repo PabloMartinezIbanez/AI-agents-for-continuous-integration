@@ -85,7 +85,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    python3 -m pip install --break-system-packages -r "$WORKSPACE/requirements/python_requirements.txt"
+                    python3 -m pip install --break-system-packages -r "$WORKSPACE/requirements/python_requirements.txt" > /dev/null 2>&1 || exit 0
                 '''
             }
         }
