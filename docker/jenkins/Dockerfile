@@ -10,7 +10,7 @@ USER root
 # Instalar herramientas necesarias, ngrok y SonarScanner
 ARG SONAR_SCANNER_VERSION=6.1.0.4477
 RUN apt-get update && \
-    get install -y --no-install-recommends \
+    apt-get install -y --no-install-recommends \
     curl \
     unzip \
     ca-certificates \
