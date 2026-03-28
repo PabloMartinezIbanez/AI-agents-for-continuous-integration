@@ -7,11 +7,7 @@ LABEL description="Jenkins con ngrok integrado para exposición automática vía
 # Usuario root temporal para instalar dependencias
 USER root
 
-# ── SonarScanner CLI Version ─────────────────────────────────────────────────
-ARG SONAR_SCANNER_VERSION=6.1.0.4477
-ENV SONAR_SCANNER_OPTS="-Djava.security.egd=file:/dev/./urandom"
-
-# Instalar herramientas necesarias, ngrok y SonarScanner CLI
+# Instalar herramientas necesarias y ngrok
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
@@ -26,18 +22,26 @@ RUN apt-get update && \
     -o /tmp/ngrok.zip && \
     unzip /tmp/ngrok.zip -d /usr/local/bin/ && \
     chmod +x /usr/local/bin/ngrok && \
-    rm /tmp/ngrok.zip && \
-    curl -sSL \
+    rm /tmp/ngrok.zip
+
+# ── SonarScanner CLI ─────────────────────────────────────────────────────────
+# Versión fijada para builds reproducibles; actualiza el número cuando convenga
+ARG SONAR_SCANNER_VERSION=6.1.0.4477
+RUN curl -sSL \
     "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux-x64.zip" \
     -o /tmp/sonar-scanner.zip && \
     unzip /tmp/sonar-scanner.zip -d /opt/ && \
     mv /opt/sonar-scanner-${SONAR_SCANNER_VERSION}-linux-x64 /opt/sonar-scanner && \
     ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner && \
-    rm /tmp/sonar-scanner.zip && \
-    sed -i 's|#use_embedded_jre=true|use_embedded_jre=false|' \
+    rm /tmp/sonar-scanner.zip
+
+# Apuntar el JRE del scanner al JDK que ya trae la imagen base
+# (evita que el scanner descargue su propio JRE embebido)
+ENV SONAR_SCANNER_OPTS="-Djava.security.egd=file:/dev/./urandom"
+RUN sed -i 's|#use_embedded_jre=true|use_embedded_jre=false|' \
     /opt/sonar-scanner/conf/sonar-scanner.properties
 
-# Entrypoint wrapper (Jenkins + ngrok)
+# Entrypoint wrapper y configuración de Git
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh && \
     git config --global user.name "Jenkins AI Bot" && \
