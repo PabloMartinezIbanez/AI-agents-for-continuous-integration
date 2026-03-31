@@ -118,7 +118,14 @@ pipeline {
     }
     post {
         always {
-            archiveArtifacts artifacts: "${env.AI_REPORTS_DIR}/*", fingerprint: true
+            when {
+                expression { env.CHANGE_ID }
+            }
+            steps {
+                echo "Archiving test reports"
+                archiveArtifacts artifacts: "${env.AI_REPORTS_DIR}/*", fingerprint: true
+            }
+
             cleanWs(
                 cleanWhenSuccess: true,
                 cleanWhenFailure: false,
