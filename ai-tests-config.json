@@ -1,0 +1,19 @@
+{
+  "test_suites": [
+    {
+      "name": "python-unit-tests",
+      "framework": "pytest",
+      "setup": "pip install -r requirements/python_requirements.txt",
+      "command": "PYTHONPATH=src/calculator python3 -m pytest tests/python/test_suma.py --tb=long -v",
+      "test_dir": "tests/python/",
+      "timeout": 120
+    },
+    {
+      "name": "javascript-unit-tests",
+      "framework": "node",
+      "command": "node --test tests/javascript/test_prueba.js",
+      "test_dir": "tests/javascript/",
+      "timeout": 60
+    }
+  ]
+}
