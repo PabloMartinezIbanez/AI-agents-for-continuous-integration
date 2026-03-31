@@ -95,6 +95,7 @@ pipeline {
             steps {
                 sh "PYTHONPATH=\"$WORKSPACE/src/calculator\" python3 -m pytest \"$WORKSPACE/tests/python/test_suma.py\" --json-report --json-report-file=\"$WORKSPACE/$AI_REPORTS_DIR/python_test_results.json\"  > /dev/null 2>&1 || exit 0"
                 sh "node --test --test-reporter=junit --test-reporter-destination=\"$WORKSPACE/$AI_REPORTS_DIR/js_test_results.xml\" tests/javascript/test_prueba.js > /dev/null 2>&1 || exit 0"
+                archiveArtifacts artifacts: "${env.AI_REPORTS_DIR}/*", fingerprint: true, allowEmptyArchive: true
             }
         }
 
@@ -118,14 +119,6 @@ pipeline {
     }
     post {
         always {
-            when {
-                expression { env.CHANGE_ID }
-            }
-            steps {
-                echo "Archiving test reports"
-                archiveArtifacts artifacts: "${env.AI_REPORTS_DIR}/*", fingerprint: true
-            }
-
             cleanWs(
                 cleanWhenSuccess: true,
                 cleanWhenFailure: false,
