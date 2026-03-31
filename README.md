@@ -42,10 +42,9 @@ The pipeline defined in the Jenkinsfile follows this sequence:
 2. Run static analysis on the repository with SonarScanner.
 3. Wait for the SonarQube Quality Gate result.
 4. Export the issues detected by SonarQube.
-5. Install Python dependencies inside a local virtual environment created during the build.
-6. Run Python and JavaScript tests, storing reports for later consumption.
-7. Run the FixWithAI stage, which consumes the generated reports and attempts to apply automated fixes.
-8. Archive the generated artifacts.
+5. If the build is for a pull request, install Python dependencies and run the Python and JavaScript tests.
+6. If the build is not for a pull request, run the FixWithAI stage.
+7. Archive the generated artifacts.
 
 The pipeline uses a Jenkins shared library declared as AI_agents_for_CI_shared_library. Without that library, custom stages such as ExportSonarQubeIssues and FixWithAI cannot run.
 
