@@ -7,7 +7,7 @@ LABEL description="Jenkins con ngrok integrado para exposición automática vía
 # Usuario root temporal para instalar dependencias
 USER root
 
-# Instalar herramientas necesarias y ngrok
+# Instalar herramientas necesarias
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
@@ -43,7 +43,6 @@ RUN sed -i 's|#use_embedded_jre=true|use_embedded_jre=false|' \
 
 # Entrypoint wrapper (Jenkins + ngrok)
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-# Git config global para commits automáticos de la IA
 RUN chmod +x /usr/local/bin/entrypoint.sh && \
     git config --global user.name "Jenkins AI Bot" && \
     git config --global user.email "jenkins-ai@noreply.github.com"

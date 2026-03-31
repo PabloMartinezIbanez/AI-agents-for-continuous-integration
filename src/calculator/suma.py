@@ -7,7 +7,7 @@ Script simple que suma dos números
 def main():
     print("=== Calculadora de Suma ===")
     
-    EXIT_MSG = "\nPresiona Enter para salir..."
+    EXIT_PROMPT = "\nPresiona Enter para salir..."
     
     try:
         numero1 = float(input("Ingresa el primer número: "))
@@ -17,14 +17,14 @@ def main():
         
         print(f"\nResultado: {numero1} + {numero2} = {resultado}")
         
-        input(EXIT_MSG)
+        input(EXIT_PROMPT)
         
     except ValueError:
         print("Error: Por favor ingresa números válidos")
-        input(EXIT_MSG)
+        input(EXIT_PROMPT)
     except Exception as e:
         print(f"Error inesperado: {e}")
-        input(EXIT_MSG)
+        input(EXIT_PROMPT)
 
 def suma(a, b):
     return a + b
