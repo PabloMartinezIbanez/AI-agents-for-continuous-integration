@@ -1,4 +1,4 @@
-@Library('AI_agents_for_CI_shared_library') _
+@Library('AI_agents_for_CI_shared_library@ADI-48-Upgrade-MCP-time-execution') _
 
 pipeline {
     agent {
@@ -73,15 +73,14 @@ pipeline {
         stage("Quality Gate") {
             steps {
                 script {
-                    def qg = waitForQualityGate abortPipeline: false
-                    env.QUALITY_GATE_STATUS = qg.status
+                    waitForQualityGate abortPipeline: false
                 }
             }
         }
 
         stage('Install Python Dependencies') {
             when {
-                expression { env.QUALITY_GATE_STATUS == 'OK' }
+                expression { env.CHANGE_ID }
             }
             steps {
                 sh '''
@@ -91,26 +90,50 @@ pipeline {
         }
         stage('Run Tests') {
             when {
-                expression { env.QUALITY_GATE_STATUS == 'OK' }
+                expression { env.CHANGE_ID }
             }
             steps {
-                sh "PYTHONPATH=\"$WORKSPACE/src/calculator\" python3 -m pytest \"$WORKSPACE/tests/python/test_suma.py\" --json-report --json-report-file=\"$WORKSPACE/$AI_REPORTS_DIR/python_test_results.json\"  > /dev/null 2>&1 || exit 0"
-                sh "node --test --test-reporter=junit --test-reporter-destination=\"$WORKSPACE/$AI_REPORTS_DIR/js_test_results.xml\" tests/javascript/test_prueba.js > /dev/null 2>&1 || exit 0"
+                script {
+                    def failedSuites = []
+
+                    int pythonStatus = sh(
+                        script: "PYTHONPATH=\"$WORKSPACE/src/calculator\" python3 -m pytest \"$WORKSPACE/tests/python/test_suma.py\" --json-report --json-report-file=\"$WORKSPACE/$AI_REPORTS_DIR/python_test_results.json\" > /dev/null 2>&1",
+                        returnStatus: true
+                    )
+                    if (pythonStatus != 0) {
+                        failedSuites << 'python'
+                    }
+
+                    int jsStatus = sh(
+                        script: "node --test --test-reporter=junit --test-reporter-destination=\"$WORKSPACE/$AI_REPORTS_DIR/js_test_results.xml\" tests/javascript/test_prueba.js > /dev/null 2>&1",
+                        returnStatus: true
+                    )
+                    if (jsStatus != 0) {
+                        failedSuites << 'javascript'
+                    }
+
+                    archiveArtifacts artifacts: "${env.AI_REPORTS_DIR}/*", fingerprint: true, allowEmptyArchive: true
+
+                    if (failedSuites) {
+                        error("Test suites failed: ${failedSuites.join(', ')}")
+                    }
+                }
             }
         }
 
         stage('Fix Issues with AI') {
             when {
-                expression { env.QUALITY_GATE_STATUS == 'OK' }
+                expression { !env.CHANGE_ID }
             }
             steps {
-                echo "Quality Gate passed with status: ${env.QUALITY_GATE_STATUS}. Attempting to fix issues with AI..."
+                echo "Attempting to fix issues with AI..."
                 FixWithAI(
                     reportsDir: env.AI_REPORTS_DIR,
-                    llmModel: 'gemini-3-flash-preview', // 'gemini-3.1-pro-preview',
+                    llmModel: 'gemini-3.1-pro-preview', // 'gemini-3-flash-preview',
                     llmCredentialId: 'LLM_API_KEY_VALUE',
                     githubCredentialId: 'Github_AI_Auth',
                     repoSlug: 'PabloMartinezIbanez/AI-agents-for-continuous-integration',
+                    testConfigFile: 'ai-tests-config.json',
                     dryRun: false
                 )
             }
@@ -118,7 +141,6 @@ pipeline {
     }
     post {
         always {
-            archiveArtifacts artifacts: "${env.AI_REPORTS_DIR}/*", fingerprint: true
             cleanWs(
                 cleanWhenSuccess: true,
                 cleanWhenFailure: false,
