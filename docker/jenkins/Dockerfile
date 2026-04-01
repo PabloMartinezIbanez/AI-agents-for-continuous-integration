@@ -9,7 +9,7 @@ USER root
 
 # Instalar herramientas necesarias y ngrok
 RUN apt-get update && \
-    get install -y --no-install-recommends \
+    apt-get install -y --no-install-recommends \
     curl \
     unzip \
     ca-certificates \
