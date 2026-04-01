@@ -128,7 +128,6 @@ pipeline {
             steps {
                 echo "Attempting to fix issues with AI..."
                 FixWithAI(
-                    reportsDir: env.AI_REPORTS_DIR,
                     llmModel: 'gemini-3.1-pro-preview', // 'gemini-3-flash-preview',
                     llmCredentialId: 'LLM_API_KEY_VALUE',
                     githubCredentialId: 'Github_AI_Auth',
