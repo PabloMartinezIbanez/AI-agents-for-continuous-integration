@@ -1,4 +1,4 @@
-@Library('AI_agents_for_CI_shared_library@ADI-47-Upgrade-modularity-of-test_runner') _
+@Library('AI_agents_for_CI_shared_library@ADI-48-Upgrade-MCP-time-execution') _
 
 pipeline {
     agent {
