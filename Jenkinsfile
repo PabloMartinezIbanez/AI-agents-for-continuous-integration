@@ -1,4 +1,4 @@
-@Library('AI_agents_for_CI_shared_library@ADI-48-Upgrade-MCP-time-execution') _
+@Library('AI_agents_for_CI_shared_library@ADI-50-redefine-arquitecture') _
 
 pipeline {
     agent {
@@ -65,7 +65,7 @@ pipeline {
                         -Dsonar.sources=. \
                         -Dsonar.host.url=$SONARQUBE_URL \
                         -Dsonar.login=$SONARQUBE_TOKEN \
-                        -Dsonar.scanner.metadataFilePath="$WORKSPACE/report-task.txt" > /dev/null 2>&1 || exit 0
+                        -Dsonar.scanner.metadataFilePath="$WORKSPACE/report-task.txt" > /dev/null 2>&1
                     '''
                 }
             }
@@ -128,7 +128,6 @@ pipeline {
             steps {
                 echo "Attempting to fix issues with AI..."
                 FixWithAI(
-                    reportsDir: env.AI_REPORTS_DIR,
                     llmModel: 'gemini-3.1-pro-preview', // 'gemini-3-flash-preview',
                     llmCredentialId: 'LLM_API_KEY_VALUE',
                     githubCredentialId: 'Github_AI_Auth',
