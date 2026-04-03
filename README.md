@@ -196,3 +196,5 @@ Current examples:
 ## Author and context
 
 Repository developed as part of a final degree project in Computer Engineering, focused on the use of AI agents applied to Continuous Integration.
+
+*Note: This branch has been checked by the AI agent and no open SonarQube issues were found.*
