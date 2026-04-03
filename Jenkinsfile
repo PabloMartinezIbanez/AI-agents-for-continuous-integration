@@ -1,102 +1,96 @@
 @Library('AI_agents_for_CI_shared_library') _
 
 pipeline {
-    agent none
-    
+    agent {
+        node {
+            label 'linux'
+            customWorkspace "/var/jenkins_home/workspace/${env.JOB_NAME}/${env.BUILD_NUMBER}"
+        }
+    }
+
+    options {
+        skipDefaultCheckout(true)
+    }
+
+    tools {
+        nodejs '25.6.1'
+        dockerTool 'Docker-v27.3.1'
+    }
+
+    triggers {
+        githubPush()
+    }
+
     environment {
-        GEMINI_API_KEY = credentials('GEMINI_API_KEY')
+        // Environment variables consumed by the Python script
+        SONARQUBE_TOKEN = credentials('SONARQUBE_TOKEN')
+        SONARQUBE_URL = 'http://sonarqube:9000'
+        SONARQUBE_PROJECT_KEY = 'AI-agents-for-continuous-integration'
+        LLM_API_KEY_VALUE = credentials('LLM_API_KEY_VALUE')
+        Github_AI_Auth = credentials('Github_AI_Auth')
+        // Directory where AI-facing reports are centralized
+        AI_REPORTS_DIR = 'reports_for_IA'
+        DOCKER_HOST = 'tcp://host.docker.internal:2375'
     }
 
     stages {
-        stage('Agent') {
-            agent {
-                docker { 
-                    image 'python:3.11-slim'
-                    // Opcional: evitar pull si ya está local
-                    alwaysPull false 
-                }
-            }
-            steps {
-                echo 'Agent set up successfully'
-                sh 'python --version'
-                sh 'python -m pip --version'
-            }
-        }
+
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-        
-        stage('Setup Python') {
-            steps {
-                echo 'Verificando instalación de Python...'
-                sh '''
-                    python --version
-                    python -m pip --version
-                '''
-            }
-        }
-        
-        stage('Install Dependencies') {
-            steps {
-                echo 'Instalando dependencias...'
-                sh '''
-                    python -m pip install --upgrade pip
-                    python -m pip install flake8 pytest
-                    python -m pip install -r requirements.txt
-                '''
-            }
-        }
 
         stage('Prepare AI Directory') {
             steps {
-                echo 'Obteniendo cambios del commit...'
                 sh '''
-                    git show --pretty=format:"" > diff.log
+                    rm -rf "$AI_REPORTS_DIR"
+                    mkdir -p "$AI_REPORTS_DIR"
                 '''
             }
         }
 
         stage('Scan') {
             steps {
-                echo 'Ejecutando lint con flake8...'
-                // stop the build if there are Python syntax errors or undefined names
-                // exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-                sh '''
-                    python -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-                    python -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics > lint.log || exit 0
-                '''
+                script {
+                    def safeBranch = (env.BRANCH_NAME ?: 'manual').replaceAll(/[^A-Za-z0-9._:-]/, '_')
+                    env.SONARQUBE_EFFECTIVE_PROJECT_KEY = "${env.SONARQUBE_PROJECT_KEY}:${safeBranch}"
+                }
+                withSonarQubeEnv(installationName: 'sonarQube_server') {
+                    sh '''
+                        echo "Scanning with project key: ${SONARQUBE_EFFECTIVE_PROJECT_KEY}"
+                        
+                        sonar-scanner \
+                        -Dsonar.projectKey="${SONARQUBE_EFFECTIVE_PROJECT_KEY}" \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=$SONARQUBE_URL \
+                        -Dsonar.login=$SONARQUBE_TOKEN \
+                        -Dsonar.scanner.metadataFilePath="$WORKSPACE/report-task.txt" > /dev/null 2>&1
+                    '''
+                }
             }
         }
         stage("Quality Gate") {
             steps {
-                echo 'Ejecutando tests con pytest...'
-                sh '''
-                    python -m pytest test.py > tests.log || exit 0
-                '''
+                script {
+                    waitForQualityGate abortPipeline: false
+                }
             }
         }
 
-        stage('AI Analysis') {
-            steps {
-                echo 'Analizando resultados con IA...'
-                sh '''
-                    python ia_analyzer.py
-                '''
+        stage('Install Python Dependencies') {
+            when {
+                expression { env.CHANGE_ID && (env.CHANGE_BRANCH ?: '').startsWith('ai-fix/') }
             }
             steps {
-                echo 'Construyendo ejecutable con PyInstaller...'
                 sh '''
-                    python -m PyInstaller --onefile --name suma suma.py
+                    python3 -m pip install --break-system-packages -r "$WORKSPACE/requirements/python_requirements.txt" > /dev/null 2>&1 || exit 0
                 '''
             }
         }
-        
-        stage('List Artifacts') {
-            steps {
-                echo 'Archivos generados:'
-                sh 'ls dist'
+        stage('Run Tests') {
+            when {
+                expression { env.CHANGE_ID && (env.CHANGE_BRANCH ?: '').startsWith('ai-fix/') }
             }
             steps {
                 script {
