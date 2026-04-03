@@ -4,6 +4,8 @@
 Script simple que suma dos números
 """
 
+EXIT_PROMPT = "\nPresiona Enter para salir..."
+
 def main():
     print("=== Calculadora de Suma ===")
     
@@ -15,17 +17,20 @@ def main():
         
         print(f"\nResultado: {numero1} + {numero2} = {resultado}")
         
-        input("\nPresiona Enter para salir...")
+        input(EXIT_PROMPT)
         
     except ValueError:
         print("Error: Por favor ingresa números válidos")
-        input("\nPresiona Enter para salir...")
+        input(EXIT_PROMPT)
     except Exception as e:
         print(f"Error inesperado: {e}")
-        input("\nPresiona Enter para salir...")
+        input(EXIT_PROMPT)
 
 def suma(a, b):
     return a + b
+
+def resta(a, b):
+    return a - b
 
 if __name__ == "__main__":
     main()

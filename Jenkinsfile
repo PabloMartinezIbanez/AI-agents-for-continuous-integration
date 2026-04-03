@@ -1,133 +1,156 @@
+@Library('AI_agents_for_CI_shared_library') _
+
 pipeline {
-    agent none
-    
-    environment {
-        GEMINI_API_KEY = credentials('GEMINI_API_KEY')
-    }
-    
-    stages {
-        stage('Agent') {
-            agent {
-                docker { 
-                    image 'python:3.11-slim'
-                    // Opcional: evitar pull si ya está local
-                    alwaysPull false 
-                }
-            }
-            steps {
-                echo 'Agent set up successfully'
-                sh 'python --version'
-                sh 'python -m pip --version'
-            }
+    agent {
+        node {
+            label 'linux'
+            customWorkspace "/var/jenkins_home/workspace/${env.JOB_NAME}/${env.BUILD_NUMBER}"
         }
+    }
+
+    options {
+        skipDefaultCheckout(true)
+    }
+
+    tools {
+        nodejs '25.6.1'
+        dockerTool 'Docker-v27.3.1'
+    }
+
+    triggers {
+        githubPush()
+    }
+
+    environment {
+        // Environment variables consumed by the Python script
+        SONARQUBE_TOKEN = credentials('SONARQUBE_TOKEN')
+        SONARQUBE_URL = 'http://sonarqube:9000'
+        SONARQUBE_PROJECT_KEY = 'AI-agents-for-continuous-integration'
+        LLM_API_KEY_VALUE = credentials('LLM_API_KEY_VALUE')
+        Github_AI_Auth = credentials('Github_AI_Auth')
+        // Directory where AI-facing reports are centralized
+        AI_REPORTS_DIR = 'reports_for_IA'
+        DOCKER_HOST = 'tcp://host.docker.internal:2375'
+    }
+
+    stages {
+
         stage('Checkout') {
             steps {
-                echo 'Obteniendo código del repositorio...'
                 checkout scm
             }
         }
-        
-        stage('Setup Python') {
+
+        stage('Prepare AI Directory') {
             steps {
-                echo 'Verificando instalación de Python...'
                 sh '''
-                    python --version
-                    python -m pip --version
-                '''
-            }
-        }
-        
-        stage('Install Dependencies') {
-            steps {
-                echo 'Instalando dependencias...'
-                sh '''
-                    python -m pip install --upgrade pip
-                    python -m pip install flake8 pytest
-                    python -m pip install -r requirements.txt
+                    rm -rf "$AI_REPORTS_DIR"
+                    mkdir -p "$AI_REPORTS_DIR"
                 '''
             }
         }
 
-        stage('Get Code Changes') {
-            steps {
-                echo 'Obteniendo cambios del commit...'
-                sh '''
-                    git show --pretty=format:"" > diff.log
-                '''
+        stage('Install Python Dependencies') {
+            when {
+                expression { env.CHANGE_ID && (env.CHANGE_BRANCH ?: '').startsWith('ai-fix/') }
             }
-}
-
-        stage('Lint') {
             steps {
-                echo 'Ejecutando lint con flake8...'
-                // stop the build if there are Python syntax errors or undefined names
-                // exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
                 sh '''
-                    python -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-                    python -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics > lint.log || exit 0
+                    python3 -m pip install --break-system-packages -r "$WORKSPACE/requirements/python_requirements.txt" > /dev/null 2>&1 || exit 0
                 '''
             }
         }
-
-        stage('Unit Tests') {
+        stage('Run Tests') {
+            when {
+                expression { env.CHANGE_ID && (env.CHANGE_BRANCH ?: '').startsWith('ai-fix/') }
+            }
             steps {
-                echo 'Ejecutando tests con pytest...'
-                sh '''
-                    python -m pytest test.py > tests.log || exit 0
-                '''
+                script {
+                    def failedSuites = []
+
+                    int pythonStatus = sh(
+                        script: "PYTHONPATH=\"$WORKSPACE/src/calculator\" python3 -m pytest \"$WORKSPACE/tests/python/test_suma.py\" --json-report --json-report-file=\"$WORKSPACE/$AI_REPORTS_DIR/python_test_results.json\" > /dev/null 2>&1",
+                        returnStatus: true
+                    )
+                    if (pythonStatus != 0) {
+                        failedSuites << 'python'
+                    }
+
+                    int jsStatus = sh(
+                        script: "node --test --test-reporter=junit --test-reporter-destination=\"$WORKSPACE/$AI_REPORTS_DIR/js_test_results.xml\" tests/javascript/test_prueba.js > /dev/null 2>&1",
+                        returnStatus: true
+                    )
+                    if (jsStatus != 0) {
+                        failedSuites << 'javascript'
+                    }
+
+                    archiveArtifacts artifacts: "${env.AI_REPORTS_DIR}/*", fingerprint: true, allowEmptyArchive: true
+
+                    if (failedSuites) {
+                        error("Test suites failed: ${failedSuites.join(', ')}")
+                    }
+                }
             }
         }
 
-        stage('AI Analysis') {
+        stage('Scan') {
+            when {
+                expression { env.CHANGE_ID && !((env.CHANGE_BRANCH ?: '').startsWith('ai-fix/')) }
+            }
             steps {
-                echo 'Analizando resultados con IA...'
-                sh '''
-                    python ia_analyzer.py
-                '''
+                script {
+                    def safeBranch = (env.BRANCH_NAME ?: 'manual').replaceAll(/[^A-Za-z0-9._:-]/, '_')
+                    env.SONARQUBE_EFFECTIVE_PROJECT_KEY = "${env.SONARQUBE_PROJECT_KEY}:${safeBranch}"
+                }
+                withSonarQubeEnv(installationName: 'sonarQube_server') {
+                    sh '''
+                        echo "Scanning with project key: ${SONARQUBE_EFFECTIVE_PROJECT_KEY}"
+                        
+                        sonar-scanner \
+                        -Dsonar.projectKey="${SONARQUBE_EFFECTIVE_PROJECT_KEY}" \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=$SONARQUBE_URL \
+                        -Dsonar.login=$SONARQUBE_TOKEN \
+                        -Dsonar.scanner.metadataFilePath="$WORKSPACE/report-task.txt" > /dev/null 2>&1
+                    '''
+                }
             }
         }
-        
-        stage('Build Executable') {
+        stage("Quality Gate") {
+            when {
+                expression { env.CHANGE_ID && !((env.CHANGE_BRANCH ?: '').startsWith('ai-fix/')) }
+            }
             steps {
-                echo 'Construyendo ejecutable con PyInstaller...'
-                sh '''
-                    python -m PyInstaller --onefile --name suma suma.py
-                '''
+                script {
+                    waitForQualityGate abortPipeline: false
+                }
             }
         }
-        
-        stage('List Artifacts') {
-            steps {
-                echo 'Archivos generados:'
-                sh 'ls dist'
-            }
-        }
-        
-        stage('Archive Artifacts') {
-            steps {
-                echo 'Archivando ejecutable...'
-                archiveArtifacts artifacts: 'dist/*.exe', fingerprint: true
 
-                echo 'Archivando logs...'
-                archiveArtifacts artifacts: '*.log', fingerprint: true
-
-                echo 'Archivando informe IA...'
-                archiveArtifacts artifacts: 'ai_report.md', fingerprint: true
+        stage('Fix Issues with AI') {
+            when {
+                expression { env.CHANGE_ID && !((env.CHANGE_BRANCH ?: '').startsWith('ai-fix/')) }
+            }
+            steps {
+                echo "Attempting to fix issues with AI..."
+                FixWithAI(
+                    llmModel: 'gemini-3.1-pro-preview', // 'gemini-3-flash-preview',
+                    llmCredentialId: 'LLM_API_KEY_VALUE',
+                    githubCredentialId: 'Github_AI_Auth',
+                    repoSlug: 'PabloMartinezIbanez/AI-agents-for-continuous-integration',
+                    testConfigFile: 'ai-tests-config.json',
+                    dryRun: false
+                )
             }
         }
     }
-    
     post {
-        success {
-            echo 'Build completado exitosamente!'
-            echo 'El ejecutable suma.exe está disponible en los artefactos'
-        }
-        failure {
-            echo 'El build ha fallado. Revisa los logs para más información.'
-        }
         always {
-            echo 'Limpiando workspace...'
-            cleanWs()
+            cleanWs(
+                cleanWhenSuccess: true,
+                cleanWhenFailure: false,
+                deleteDirs: true
+            )
         }
     }
 }
