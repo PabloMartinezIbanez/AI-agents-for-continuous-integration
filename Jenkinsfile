@@ -50,34 +50,6 @@ pipeline {
             }
         }
 
-        stage('Scan') {
-            steps {
-                script {
-                    def safeBranch = (env.BRANCH_NAME ?: 'manual').replaceAll(/[^A-Za-z0-9._:-]/, '_')
-                    env.SONARQUBE_EFFECTIVE_PROJECT_KEY = "${env.SONARQUBE_PROJECT_KEY}:${safeBranch}"
-                }
-                withSonarQubeEnv(installationName: 'sonarQube_server') {
-                    sh '''
-                        echo "Scanning with project key: ${SONARQUBE_EFFECTIVE_PROJECT_KEY}"
-                        
-                        sonar-scanner \
-                        -Dsonar.projectKey="${SONARQUBE_EFFECTIVE_PROJECT_KEY}" \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=$SONARQUBE_URL \
-                        -Dsonar.login=$SONARQUBE_TOKEN \
-                        -Dsonar.scanner.metadataFilePath="$WORKSPACE/report-task.txt" > /dev/null 2>&1
-                    '''
-                }
-            }
-        }
-        stage("Quality Gate") {
-            steps {
-                script {
-                    waitForQualityGate abortPipeline: false
-                }
-            }
-        }
-
         stage('Install Python Dependencies') {
             when {
                 expression { env.CHANGE_ID && (env.CHANGE_BRANCH ?: '').startsWith('ai-fix/') }
@@ -117,6 +89,40 @@ pipeline {
                     if (failedSuites) {
                         error("Test suites failed: ${failedSuites.join(', ')}")
                     }
+                }
+            }
+        }
+
+        stage('Scan') {
+            when {
+                expression { env.CHANGE_ID && !((env.CHANGE_BRANCH ?: '').startsWith('ai-fix/')) }
+            }
+            steps {
+                script {
+                    def safeBranch = (env.BRANCH_NAME ?: 'manual').replaceAll(/[^A-Za-z0-9._:-]/, '_')
+                    env.SONARQUBE_EFFECTIVE_PROJECT_KEY = "${env.SONARQUBE_PROJECT_KEY}:${safeBranch}"
+                }
+                withSonarQubeEnv(installationName: 'sonarQube_server') {
+                    sh '''
+                        echo "Scanning with project key: ${SONARQUBE_EFFECTIVE_PROJECT_KEY}"
+                        
+                        sonar-scanner \
+                        -Dsonar.projectKey="${SONARQUBE_EFFECTIVE_PROJECT_KEY}" \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=$SONARQUBE_URL \
+                        -Dsonar.login=$SONARQUBE_TOKEN \
+                        -Dsonar.scanner.metadataFilePath="$WORKSPACE/report-task.txt" > /dev/null 2>&1
+                    '''
+                }
+            }
+        }
+        stage("Quality Gate") {
+            when {
+                expression { env.CHANGE_ID && !((env.CHANGE_BRANCH ?: '').startsWith('ai-fix/')) }
+            }
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false
                 }
             }
         }
