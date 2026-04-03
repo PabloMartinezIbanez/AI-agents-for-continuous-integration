@@ -1,4 +1,4 @@
-@Library('AI_agents_for_CI_shared_library@ADI-48-Upgrade-MCP-time-execution') _
+@Library('AI_agents_for_CI_shared_library@ADI-50-redefine-arquitecture') _
 
 pipeline {
     agent {
