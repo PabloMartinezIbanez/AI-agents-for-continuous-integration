@@ -1,4 +1,4 @@
-@Library('AI_agents_for_CI_shared_library@ADI-50-redefine-arquitecture') _
+@Library('AI_agents_for_CI_shared_library') _
 
 pipeline {
     agent {
@@ -80,7 +80,7 @@ pipeline {
 
         stage('Install Python Dependencies') {
             when {
-                expression { env.CHANGE_ID }
+                expression { env.CHANGE_ID && (env.CHANGE_BRANCH ?: '').startsWith('ai-fix/') }
             }
             steps {
                 sh '''
@@ -90,7 +90,7 @@ pipeline {
         }
         stage('Run Tests') {
             when {
-                expression { env.CHANGE_ID }
+                expression { env.CHANGE_ID && (env.CHANGE_BRANCH ?: '').startsWith('ai-fix/') }
             }
             steps {
                 script {
@@ -123,7 +123,7 @@ pipeline {
 
         stage('Fix Issues with AI') {
             when {
-                expression { !env.CHANGE_ID }
+                expression { env.CHANGE_ID && !((env.CHANGE_BRANCH ?: '').startsWith('ai-fix/')) }
             }
             steps {
                 echo "Attempting to fix issues with AI..."
