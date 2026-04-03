@@ -1,6 +1,6 @@
 services:
 
-  # ── Jenkins + ngrok ──────────────────────────────────────────────────────────
+  # Jenkins + ngrok
   jenkins:
     build:
       context: .
@@ -11,23 +11,23 @@ services:
     ports:
       - "8080:8080" # Jenkins UI
       - "5678:5678" # ngrok tunnel
-      - "50000:50000" # Agentes JNLP
+      - "50000:50000" # JNLP agents
     volumes:
       - jenkins_home:/var/jenkins_home
     env_file:
-      - .env # NGROK_AUTHTOKEN y otras vars sensibles
+      - .env # NGROK_AUTHTOKEN and other sensitive variables
     environment:
       JENKINS_OPTS: "--httpPort=8080"
       NGROK_REGION: "eu"
-      # URL interna para que las pipelines apunten a SonarQube por nombre de servicio
+      # Internal URL so pipelines can reach SonarQube by service name
       SONAR_HOST_URL: "http://sonarqube:9000"
     networks:
-      - sonarnet # ← necesario para que Jenkins llegue a SonarQube
+      - sonarnet # required so Jenkins can reach SonarQube
     entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
     depends_on:
       - sonarqube
 
-  # ── SonarQube ────────────────────────────────────────────────────────────────
+  # SonarQube
   sonarqube:
     container_name: sonarqube
     image: sonarqube:26.3.0.120487-community
@@ -36,7 +36,7 @@ services:
     networks:
       - sonarnet
     environment:
-      - SONAR_JDBC_URL=jdbc:postgresql://db:5432/sonar # ← corregido (era postgresq1 con "1")
+      - SONAR_JDBC_URL=jdbc:postgresql://db:5432/sonar # corrected (it was postgresq1 with a "1")
       - SONAR_JDBC_USERNAME=${SONARQUBE_JDBC_USERNAME}
       - SONAR_JDBC_PASSWORD=${SONARQUBE_JDBC_PASSWORD}
     volumes:
@@ -47,7 +47,7 @@ services:
     depends_on:
       - db
 
-  # ── PostgreSQL (backend de SonarQube) ────────────────────────────────────────
+  # PostgreSQL (SonarQube backend)
   db:
     container_name: postgresql
     image: postgres:15.17

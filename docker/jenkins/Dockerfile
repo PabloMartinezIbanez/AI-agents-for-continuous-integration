@@ -1,13 +1,13 @@
-# Usamos la versión exacta que pides
+# Use the exact version requested
 FROM jenkins/jenkins:2.541.1-jdk25
 
 LABEL maintainer="[EMAIL_ADDRESS]"
 LABEL description="Jenkins con ngrok integrado para exposición automática vía tunnel y SonarScanner CLI"
 
-# Usuario root temporal para instalar dependencias
+# Temporary root user to install dependencies
 USER root
 
-# Instalar herramientas necesarias
+# Install required tools
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
@@ -19,15 +19,15 @@ RUN apt-get update && \
     python3-pip && \
     rm -rf /var/lib/apt/lists/*
 
-# ── ngrok ────────────────────────────────────────────────────────────────────
+# ngrok
 RUN curl -sSL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.zip \
     -o /tmp/ngrok.zip && \
     unzip /tmp/ngrok.zip -d /usr/local/bin/ && \
     chmod +x /usr/local/bin/ngrok && \
     rm /tmp/ngrok.zip
 
-# ── SonarScanner CLI ─────────────────────────────────────────────────────────
-# Versión fijada para builds reproducibles; actualiza el número cuando convenga
+# SonarScanner CLI
+# Version pinned for reproducible builds; update the number when appropriate
 ARG SONAR_SCANNER_VERSION=6.1.0.4477
 RUN curl -sSL \
     "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux-x64.zip" \
@@ -37,8 +37,8 @@ RUN curl -sSL \
     ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner && \
     rm /tmp/sonar-scanner.zip
 
-# Apuntar el JRE del scanner al JDK que ya trae la imagen base
-# (evita que el scanner descargue su propio JRE embebido)
+# Point the scanner JRE to the JDK already provided by the base image
+# (prevents the scanner from downloading its own embedded JRE)
 ENV SONAR_SCANNER_OPTS="-Djava.security.egd=file:/dev/./urandom"
 RUN sed -i 's|#use_embedded_jre=true|use_embedded_jre=false|' \
     /opt/sonar-scanner/conf/sonar-scanner.properties
@@ -47,18 +47,18 @@ RUN sed -i 's|#use_embedded_jre=true|use_embedded_jre=false|' \
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Git config global para commits automáticos de la IA
+# Global Git config for automatic AI commits
 RUN git config --global user.name "Jenkins AI Bot" && \
     git config --global user.email "jenkins-ai@noreply.github.com"
 
-# Volver al usuario jenkins (seguridad)
+# Switch back to the jenkins user (security)
 USER jenkins
 
-# Verificar instalaciones en tiempo de build
+# Verify installations at build time
 RUN java -version && sonar-scanner --version
 
-# Variables de entorno
-# NGROK_AUTHTOKEN es obligatorio → pásalo como -e al correr el contenedor
+# Environment variables
+# NGROK_AUTHTOKEN is mandatory -> pass it with -e when running the container
 ENV NGROK_AUTHTOKEN=""
 ENV NGROK_REGION="eu"
 ENV JENKINS_OPTS="--httpPort=8080"

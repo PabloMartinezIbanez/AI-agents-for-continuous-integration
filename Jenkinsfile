@@ -22,13 +22,13 @@ pipeline {
     }
 
     environment {
-        // Variables de entorno que serán leídas por el script Python
+        // Environment variables consumed by the Python script
         SONARQUBE_TOKEN = credentials('SONARQUBE_TOKEN')
         SONARQUBE_URL = 'http://sonarqube:9000'
         SONARQUBE_PROJECT_KEY = 'AI-agents-for-continuous-integration'
         LLM_API_KEY_VALUE = credentials('LLM_API_KEY_VALUE')
         Github_AI_Auth = credentials('Github_AI_Auth')
-        // Carpeta donde se centralizan los reportes que leerá la IA
+        // Directory where AI-facing reports are centralized
         AI_REPORTS_DIR = 'reports_for_IA'
         DOCKER_HOST = 'tcp://host.docker.internal:2375'
     }

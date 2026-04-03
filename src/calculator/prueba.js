@@ -9,7 +9,7 @@ export function resta(a, b) {
     return a - b;
 }
 
-// Función main solo se ejecuta si este archivo es el principal
+// The main function runs only when this file is the entry point
 if (import.meta.url === `file://${process.argv[1]}`) {
     async function main() {
         const rl = createInterface({
