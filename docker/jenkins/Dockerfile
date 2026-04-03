@@ -7,7 +7,7 @@ LABEL description="Jenkins con ngrok integrado para exposición automática vía
 # Temporary root user to install dependencies
 USER root
 
-# Install required tools
+# Install required tools and ngrok
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
@@ -17,10 +17,8 @@ RUN apt-get update && \
     python3 \
     python3.13-venv \
     python3-pip && \
-    rm -rf /var/lib/apt/lists/*
-
-# ngrok
-RUN curl -sSL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.zip \
+    rm -rf /var/lib/apt/lists/* && \
+    curl -sSL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.zip \
     -o /tmp/ngrok.zip && \
     unzip /tmp/ngrok.zip -d /usr/local/bin/ && \
     chmod +x /usr/local/bin/ngrok && \
@@ -45,10 +43,8 @@ RUN sed -i 's|#use_embedded_jre=true|use_embedded_jre=false|' \
 
 # Entrypoint wrapper (Jenkins + ngrok)
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-# Global Git config for automatic AI commits
-RUN git config --global user.name "Jenkins AI Bot" && \
+RUN chmod +x /usr/local/bin/entrypoint.sh && \
+    git config --global user.name "Jenkins AI Bot" && \
     git config --global user.email "jenkins-ai@noreply.github.com"
 
 # Switch back to the jenkins user (security)
