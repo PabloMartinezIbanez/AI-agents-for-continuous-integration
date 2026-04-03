@@ -60,14 +60,14 @@ Important clarifications:
 
 ## Current repository state
 
-This repository intentionally contains minimal Python and JavaScript code plus failing tests to generate evidence during experiments.
+This repository intentionally contains minimal Python and JavaScript code plus a small verified test baseline that can be exercised by the Jenkins pipeline and by the AI remediation flow.
 
 Locally verified state:
 
-- Python tests: 2 passing and 2 failing.
-- JavaScript tests: 4 passing and 2 failing.
+- Python tests: 4 passing.
+- JavaScript tests: 6 passing.
 
-This mixed baseline is useful because it produces observable failures for both the test stages and the AI remediation stage.
+The current baseline is green locally. For thesis experiments, failing scenarios can still be introduced deliberately, but they are no longer described here as the default checked-in state.
 
 ## Repository structure
 
@@ -103,8 +103,8 @@ This mixed baseline is useful because it produces observable failures for both t
 
 ### Tests
 
-- `tests/python/test_suma.py`: validates the Python logic and includes intentional failing cases.
-- `tests/javascript/test_prueba.js`: validates the JavaScript logic and includes intentional failing cases.
+- `tests/python/test_suma.py`: validates the Python logic with the current green baseline.
+- `tests/javascript/test_prueba.js`: validates the JavaScript logic with the current green baseline.
 - `ai-tests-config.json`: the test-suite contract passed to `FixWithAI(...)` so that the MCP test runner knows how to execute this repository's suites.
 
 ### CI infrastructure
@@ -182,7 +182,7 @@ Current examples:
 ## Current limitations
 
 - The project is focused on academic experimentation, not production deployment.
-- The failing tests are part of the intended experimental scenario.
+- The checked-in tests are currently green; failing scenarios are an experiment setup choice, not the default repository state.
 - The pipeline consumes a companion shared library from a separate repository.
 - The AI remediation stage requires credentials and external services to work.
 
