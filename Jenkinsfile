@@ -1,5 +1,8 @@
 @Library('AI_agents_for_CI_shared_library') _
 
+def aiAlreadyApplied = false
+def runSonarAndFix = false
+
 pipeline {
     agent {
         node {
@@ -93,9 +96,29 @@ pipeline {
             }
         }
 
-        stage('Scan') {
+        stage('Detect Previous AI Fix') {
             when {
                 expression { env.CHANGE_ID && !((env.CHANGE_BRANCH ?: '').startsWith('ai-fix/')) }
+            }
+            steps {
+                script {
+                    aiAlreadyApplied = DetectPreviousAIFix(
+                        repoSlug: 'PabloMartinezIbanez/AI-agents-for-continuous-integration',
+                        reportsDir: env.AI_REPORTS_DIR,
+                        sourceBranch: env.CHANGE_BRANCH
+                    )
+
+                    runSonarAndFix =
+                        env.CHANGE_ID &&
+                        !((env.CHANGE_BRANCH ?: '').startsWith('ai-fix/')) &&
+                        !aiAlreadyApplied
+                }
+            }
+        }
+
+        stage('Scan') {
+            when {
+                expression { runSonarAndFix }
             }
             steps {
                 script {
@@ -118,7 +141,7 @@ pipeline {
         }
         stage("Quality Gate") {
             when {
-                expression { env.CHANGE_ID && !((env.CHANGE_BRANCH ?: '').startsWith('ai-fix/')) }
+                expression { runSonarAndFix }
             }
             steps {
                 script {
@@ -129,7 +152,7 @@ pipeline {
 
         stage('Fix Issues with AI') {
             when {
-                expression { env.CHANGE_ID && !((env.CHANGE_BRANCH ?: '').startsWith('ai-fix/')) }
+                expression { runSonarAndFix }
             }
             steps {
                 echo "Attempting to fix issues with AI..."
