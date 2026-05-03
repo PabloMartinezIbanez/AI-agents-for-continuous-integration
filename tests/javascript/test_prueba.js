@@ -18,10 +18,10 @@ test('resta con resultado negativo', () => {
     assert.equal(resta(3, 8), -5);
 });
 
-test('Test resta fallo', () => {
-    assert.equal(resta(-5, -2), 0);
+test('Test resta correcto', () => {
+    assert.equal(resta(-5, -2), -3);
 });
 
-test('Test suma fallo', () => {
-    assert.equal(suma(-5, -2), -10);
+test('Test suma correcto', () => {
+    assert.equal(suma(-5, -2), -7);
 });
