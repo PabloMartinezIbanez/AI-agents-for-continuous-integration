@@ -17,23 +17,20 @@ RUN apt-get update && \
     python3 \
     python3.13-venv \
     python3-pip && \
-    rm -rf /var/lib/apt/lists/*
-
-# ngrok
-RUN curl -sSL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.zip \
+    rm -rf /var/lib/apt/lists/* && \
+    # ngrok
+    curl -sSL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.zip \
     -o /tmp/ngrok.zip && \
     unzip /tmp/ngrok.zip -d /usr/local/bin/ && \
     chmod +x /usr/local/bin/ngrok && \
-    rm /tmp/ngrok.zip
-
-# SonarScanner CLI
-# Version pinned for reproducible builds; update the number when appropriate
-ARG SONAR_SCANNER_VERSION=6.1.0.4477
-RUN curl -sSL \
-    "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux-x64.zip" \
+    rm /tmp/ngrok.zip && \
+    # SonarScanner CLI
+    # Version pinned for reproducible builds; update the number when appropriate
+    curl -sSL \
+    "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION:-6.1.0.4477}-linux-x64.zip" \
     -o /tmp/sonar-scanner.zip && \
     unzip /tmp/sonar-scanner.zip -d /opt/ && \
-    mv /opt/sonar-scanner-${SONAR_SCANNER_VERSION}-linux-x64 /opt/sonar-scanner && \
+    mv /opt/sonar-scanner-${SONAR_SCANNER_VERSION:-6.1.0.4477}-linux-x64 /opt/sonar-scanner && \
     ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner && \
     rm /tmp/sonar-scanner.zip
 
