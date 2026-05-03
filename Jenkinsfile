@@ -87,7 +87,6 @@ pipeline {
                         failedSuites << 'javascript'
                     }
 
-                    archiveArtifacts artifacts: "${env.AI_REPORTS_DIR}/*", fingerprint: true, allowEmptyArchive: true
 
                     if (failedSuites) {
                         error("Test suites failed: ${failedSuites.join(', ')}")
@@ -157,7 +156,7 @@ pipeline {
             steps {
                 echo "Attempting to fix issues with AI..."
                 FixWithAI(
-                    llmModel: 'gemini-3.1-pro-preview', // 'gemini-3-flash-preview',
+                    llmModel: 'kimi-k2-instruct', // 'gemini-3-flash-preview',
                     llmCredentialId: 'LLM_API_KEY_VALUE',
                     githubCredentialId: 'Github_AI_Auth',
                     repoSlug: 'PabloMartinezIbanez/AI-agents-for-continuous-integration',
@@ -169,6 +168,7 @@ pipeline {
     }
     post {
         always {
+            archiveArtifacts artifacts: "${env.AI_REPORTS_DIR}/*", fingerprint: true, allowEmptyArchive: true
             cleanWs(
                 cleanWhenSuccess: true,
                 cleanWhenFailure: false,
